@@ -5,12 +5,14 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.MathUtils;
 
 /** First screen of the application. Displayed after the application is created. */
 public class FirstScreen implements Screen {
@@ -22,8 +24,16 @@ public class FirstScreen implements Screen {
     Animation<TextureRegion> animRight;
     Animation<TextureRegion> animFront;
     Animation<TextureRegion> animBack;
+    Animation<TextureRegion> animIdleLeft;
+    Animation<TextureRegion> animIdleRight;
     Animation<TextureRegion> currentAnim;
+
+    int faceDir;
+
     float elapsed;
+
+    float keyPressedTime;
+    float keyDelta;
 
     Rectangle cat;
 
@@ -37,8 +47,13 @@ public class FirstScreen implements Screen {
         animRight = GifDecoder.loadGIFAnimation(Animation.PlayMode.LOOP, Gdx.files.internal("Cat/Cat_walkRight.gif").read());
         animFront = GifDecoder.loadGIFAnimation(Animation.PlayMode.LOOP, Gdx.files.internal("Cat/Cat_walkBehind.gif").read());
         animBack = GifDecoder.loadGIFAnimation(Animation.PlayMode.LOOP, Gdx.files.internal("Cat/Cat_walkFront.gif").read());
+        animIdleLeft = GifDecoder.loadGIFAnimation(Animation.PlayMode.LOOP, Gdx.files.internal("Cat/Cat_idleTailLeft.gif").read());
+        animIdleRight = GifDecoder.loadGIFAnimation(Animation.PlayMode.LOOP, Gdx.files.internal("Cat/Cat_idleTailRight.gif").read());
 
-        currentAnim = animLeft;
+        currentAnim = animIdleLeft;
+        faceDir = 1;
+        keyPressedTime = 0f;
+        keyDelta = 0.25f;
 
         cat = new Rectangle();
         cat.x = 800 / 2 - 64 / 2;
@@ -50,7 +65,7 @@ public class FirstScreen implements Screen {
 
     @Override
     public void show() {
-        map = new TmxMapLoader().load("maps/test.tmx");
+        map = new TmxMapLoader().load("Maps/test.tmx");
         renderer = new OrthogonalTiledMapRenderer(map);
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 800, 480);
@@ -73,27 +88,45 @@ public class FirstScreen implements Screen {
         game.batch.end();
 
         if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-            cat.x -= 200 * Gdx.graphics.getDeltaTime();
+            keyPressedTime += Gdx.graphics.getDeltaTime();
+            if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f)) cat.x -= 32;
             currentAnim = animLeft;
+            faceDir = 1;
         }
         if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-            cat.x += 200 * Gdx.graphics.getDeltaTime();
+            keyPressedTime += Gdx.graphics.getDeltaTime();
+            if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f)) cat.x += 32;
             currentAnim = animRight;
+            faceDir = 2;
         }
         if (Gdx.input.isKeyPressed(Input.Keys.W)) {
-            cat.y += 200 * Gdx.graphics.getDeltaTime();
+            keyPressedTime += Gdx.graphics.getDeltaTime();
+            if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f)) cat.y += 32;
             currentAnim = animFront;
         }
         if (Gdx.input.isKeyPressed(Input.Keys.S)) {
-            cat.y -= 200 * Gdx.graphics.getDeltaTime();
+            keyPressedTime += Gdx.graphics.getDeltaTime();
+            if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f)) cat.y -= 32;
             currentAnim = animBack;
         }
 
-        if (cat.x < 0) cat.x = 0;
-        if (cat.x > 800 - 64) cat.x = 800 - 64;
-        if (cat.y < 0) cat.y = 0;
-        if (cat.y > 480 - 64) cat.y = 480 - 64;
+        if (!(Gdx.input.isKeyPressed(Input.Keys.W)) && !(Gdx.input.isKeyPressed(Input.Keys.A)) && !(Gdx.input.isKeyPressed(Input.Keys.S)) && !(Gdx.input.isKeyPressed(Input.Keys.D))) {
+            keyPressedTime = 0f;
+            if (faceDir == 1) currentAnim = animIdleLeft;
+            else currentAnim = animIdleRight;
+        }
 
+        /*
+        if (cat.x < 0 + 80) cat.x = 0 + 80;
+        if (cat.x > 800 - 144) cat.x = 800 - 144;
+        if (cat.y < 0 + 32) cat.y = 0 + 32;
+        if (cat.y > 480 - 64) cat.y = 480 - 64;
+        */
+
+        if (cat.x < 0 + 16) cat.x = 0 + 16;
+        if (cat.x > 800 - 48) cat.x = 800 - 48;
+        if (cat.y < 0 + 32) cat.y = 0 + 32;
+        if (cat.y > 480 - 64) cat.y = 480 - 64;
     }
 
     @Override
