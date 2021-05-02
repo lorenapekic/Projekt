@@ -7,6 +7,9 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TmxMapLoader;
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Rectangle;
 
 /** First screen of the application. Displayed after the application is created. */
@@ -24,6 +27,9 @@ public class FirstScreen implements Screen {
 
     Rectangle cat;
 
+    TiledMap map;
+    OrthogonalTiledMapRenderer renderer;
+
     public FirstScreen(final WhiskeredAway game) {
         this.game = game;
 
@@ -33,9 +39,6 @@ public class FirstScreen implements Screen {
         animBack = GifDecoder.loadGIFAnimation(Animation.PlayMode.LOOP, Gdx.files.internal("Cat/Cat_walkFront.gif").read());
 
         currentAnim = animLeft;
-
-        camera = new OrthographicCamera();
-        camera.setToOrtho(false, 800, 480);
 
         cat = new Rectangle();
         cat.x = 800 / 2 - 64 / 2;
@@ -47,15 +50,20 @@ public class FirstScreen implements Screen {
 
     @Override
     public void show() {
-        // Prepare your screen here.
+        map = new TmxMapLoader().load("maps/test.tmx");
+        renderer = new OrthogonalTiledMapRenderer(map);
+        camera = new OrthographicCamera();
+        camera.setToOrtho(false, 800, 480);
     }
 
     @Override
     public void render(float delta) {
         elapsed += Gdx.graphics.getDeltaTime();
-        Gdx.gl.glClearColor(0,0,1,0);
+        Gdx.gl.glClearColor(0,0,0,1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        renderer.setView(camera);
+        renderer.render();
         camera.update();
 
         game.batch.setProjectionMatrix(camera.combined);
@@ -90,7 +98,9 @@ public class FirstScreen implements Screen {
 
     @Override
     public void resize(int width, int height) {
-        // Resize your screen here. The parameters represent the new window size.
+        camera.viewportWidth = width;
+        camera.viewportHeight = height;
+        camera.update();
     }
 
     @Override
