@@ -16,6 +16,7 @@ import com.badlogic.gdx.math.MathUtils;
 
 /** First screen of the application. Displayed after the application is created. */
 public class FirstScreen implements Screen {
+
     final WhiskeredAway game;
 
     OrthographicCamera camera;
@@ -73,60 +74,91 @@ public class FirstScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        elapsed += Gdx.graphics.getDeltaTime();
-        Gdx.gl.glClearColor(0,0,0,1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+       switch (game.state) {
+           case PAUSED:
+               Gdx.gl.glClearColor( 1, 1, 1, 1 );
+               Gdx.gl.glClear( GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT );
 
-        renderer.setView(camera);
-        renderer.render();
-        camera.update();
+               camera.update();
 
-        game.batch.setProjectionMatrix(camera.combined);
+               game.batch.setProjectionMatrix(camera.combined);
+               game.batch.begin();
+               game.font.setColor(0, 0, 0, 1);
+               game.font.getData().setScale(2f, 2f);
+               game.font.draw(game.batch, "WHISKERED AWAY", 250, 300);
+               game.font.draw(game.batch, "The game is paused", 300, 200);
+               game.batch.end();
 
-        game.batch.begin();
-        game.batch.draw(currentAnim.getKeyFrame(elapsed), cat.x, cat.y, cat.width, cat.height);
-        game.batch.end();
+               if(Gdx.input.isKeyJustPressed(Input.Keys.P)) {
+                   game.state = gameState.RUNNING;
+               }
 
-        if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-            keyPressedTime += Gdx.graphics.getDeltaTime();
-            if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f)) cat.x -= 32;
-            currentAnim = animLeft;
-            faceDir = 1;
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-            keyPressedTime += Gdx.graphics.getDeltaTime();
-            if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f)) cat.x += 32;
-            currentAnim = animRight;
-            faceDir = 2;
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.W)) {
-            keyPressedTime += Gdx.graphics.getDeltaTime();
-            if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f)) cat.y += 32;
-            currentAnim = animFront;
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.S)) {
-            keyPressedTime += Gdx.graphics.getDeltaTime();
-            if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f)) cat.y -= 32;
-            currentAnim = animBack;
-        }
+               if(Gdx.input.isKeyJustPressed((Input.Keys.Q))) {
+                   game.state = gameState.RUNNING;
+                   game.setScreen(new MainMenuScreen(game));
+               }
+               break;
+           case RUNNING:
+               elapsed += Gdx.graphics.getDeltaTime();
+               Gdx.gl.glClearColor(0,0,0,1);
+               Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        if (!(Gdx.input.isKeyPressed(Input.Keys.W)) && !(Gdx.input.isKeyPressed(Input.Keys.A)) && !(Gdx.input.isKeyPressed(Input.Keys.S)) && !(Gdx.input.isKeyPressed(Input.Keys.D))) {
-            keyPressedTime = 0f;
-            if (faceDir == 1) currentAnim = animIdleLeft;
-            else currentAnim = animIdleRight;
-        }
+               renderer.setView(camera);
+               renderer.render();
+               camera.update();
 
-        /*
-        if (cat.x < 0 + 80) cat.x = 0 + 80;
-        if (cat.x > 800 - 144) cat.x = 800 - 144;
-        if (cat.y < 0 + 32) cat.y = 0 + 32;
-        if (cat.y > 480 - 64) cat.y = 480 - 64;
-        */
+               game.batch.setProjectionMatrix(camera.combined);
 
-        if (cat.x < 0 + 16) cat.x = 0 + 16;
-        if (cat.x > 800 - 48) cat.x = 800 - 48;
-        if (cat.y < 0 + 32) cat.y = 0 + 32;
-        if (cat.y > 480 - 64) cat.y = 480 - 64;
+               game.batch.begin();
+               game.batch.draw(currentAnim.getKeyFrame(elapsed), cat.x, cat.y, cat.width, cat.height);
+               game.batch.end();
+
+               if (Gdx.input.isKeyPressed(Input.Keys.A)) {
+                   keyPressedTime += Gdx.graphics.getDeltaTime();
+                   if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f)) cat.x -= 32;
+                   currentAnim = animLeft;
+                   faceDir = 1;
+               }
+               if (Gdx.input.isKeyPressed(Input.Keys.D)) {
+                   keyPressedTime += Gdx.graphics.getDeltaTime();
+                   if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f)) cat.x += 32;
+                   currentAnim = animRight;
+                   faceDir = 2;
+               }
+               if (Gdx.input.isKeyPressed(Input.Keys.W)) {
+                   keyPressedTime += Gdx.graphics.getDeltaTime();
+                   if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f)) cat.y += 32;
+                   currentAnim = animFront;
+               }
+               if (Gdx.input.isKeyPressed(Input.Keys.S)) {
+                   keyPressedTime += Gdx.graphics.getDeltaTime();
+                   if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f)) cat.y -= 32;
+                   currentAnim = animBack;
+               }
+               if (!(Gdx.input.isKeyPressed(Input.Keys.W)) && !(Gdx.input.isKeyPressed(Input.Keys.A)) && !(Gdx.input.isKeyPressed(Input.Keys.S)) && !(Gdx.input.isKeyPressed(Input.Keys.D))) {
+                   keyPressedTime = 0f;
+                   if (faceDir == 1) currentAnim = animIdleLeft;
+                   else currentAnim = animIdleRight;
+               }
+               //Pause game
+               if(Gdx.input.isKeyJustPressed(Input.Keys.P)) {
+                    game.state = gameState.PAUSED;
+               }
+
+                /*
+                if (cat.x < 0 + 80) cat.x = 0 + 80;
+                if (cat.x > 800 - 144) cat.x = 800 - 144;
+                if (cat.y < 0 + 32) cat.y = 0 + 32;
+                if (cat.y > 480 - 64) cat.y = 480 - 64;
+                */
+
+               if (cat.x < 0 + 16) cat.x = 0 + 16;
+               if (cat.x > 800 - 48) cat.x = 800 - 48;
+               if (cat.y < 0 + 32) cat.y = 0 + 32;
+               if (cat.y > 480 - 64) cat.y = 480 - 64;
+               break;
+       }
+
     }
 
     @Override
@@ -144,6 +176,7 @@ public class FirstScreen implements Screen {
     @Override
     public void resume() {
         // Invoked when your application is resumed after pause.
+
     }
 
     @Override
