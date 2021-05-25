@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Rectangle;
@@ -47,6 +48,8 @@ public class FirstScreen implements Screen {
 
     TiledMap map;
     OrthogonalTiledMapRenderer renderer;
+    TiledMapTileLayer mapLayer;
+    boolean isBlocked;
 
     Stage stage = new Stage(new ScreenViewport());
     Skin skin = new Skin(Gdx.files.internal("ButtonSkin/skin.json"));
@@ -68,7 +71,7 @@ public class FirstScreen implements Screen {
 
         cat = new Rectangle();
         cat.x = 800 / 2 - 64 / 2;
-        cat.y = 20;
+        cat.y = 224;
 
         cat.width = 64;
         cat.height = 64;
@@ -76,8 +79,10 @@ public class FirstScreen implements Screen {
 
     @Override
     public void show() {
-        map = new TmxMapLoader().load("Maps/test.tmx");
+        map = new TmxMapLoader().load("Maps/test2.tmx");
         renderer = new OrthogonalTiledMapRenderer(map);
+        mapLayer = (TiledMapTileLayer) map.getLayers().get(0);
+        renderer = new OrthogonalTiledMapRenderer(map, 2f);
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 800, 480);
     }
@@ -150,7 +155,8 @@ public class FirstScreen implements Screen {
                Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
                renderer.setView(camera);
-               renderer.render();
+               int[] type = new int[]{0,1};
+               renderer.render(type);
                camera.update();
 
                game.batch.setProjectionMatrix(camera.combined);
@@ -161,24 +167,28 @@ public class FirstScreen implements Screen {
 
                if (Gdx.input.isKeyPressed(Input.Keys.A)) {
                    keyPressedTime += Gdx.graphics.getDeltaTime();
-                   if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f)) cat.x -= 32;
-                   currentAnim = animLeft;
-                   faceDir = 1;
+                   isBlocked = mapLayer.getCell((int) (cat.x / 32), (int) ((cat.y + 16) / 32)).getTile().getProperties().containsKey("blocked");
+                   if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && !isBlocked) cat.x -= 32;
+                       currentAnim = animLeft;
+                       faceDir = 1;
                }
                if (Gdx.input.isKeyPressed(Input.Keys.D)) {
                    keyPressedTime += Gdx.graphics.getDeltaTime();
-                   if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f)) cat.x += 32;
-                   currentAnim = animRight;
-                   faceDir = 2;
+                   isBlocked = mapLayer.getCell((int) ((cat.x + 32) / 32 + 1), (int) ((cat.y + 16) / 32)).getTile().getProperties().containsKey("blocked");
+                   if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && !isBlocked) cat.x += 32;
+                       currentAnim = animRight;
+                       faceDir = 2;
                }
                if (Gdx.input.isKeyPressed(Input.Keys.W)) {
                    keyPressedTime += Gdx.graphics.getDeltaTime();
-                   if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f)) cat.y += 32;
+                   isBlocked = mapLayer.getCell((int) ((cat.x + 16) / 32), (int) ((cat.y + 16) / 32 + 1)).getTile().getProperties().containsKey("blocked");
+                   if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && !isBlocked) cat.y += 32;
                    currentAnim = animFront;
                }
                if (Gdx.input.isKeyPressed(Input.Keys.S)) {
                    keyPressedTime += Gdx.graphics.getDeltaTime();
-                   if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f)) cat.y -= 32;
+                   isBlocked = mapLayer.getCell((int) ((cat.x + 16) / 32), (int) (cat.y / 32) - 1).getTile().getProperties().containsKey("blocked");
+                   if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && !isBlocked) cat.y -= 32;
                    currentAnim = animBack;
                }
                if (!(Gdx.input.isKeyPressed(Input.Keys.W)) && !(Gdx.input.isKeyPressed(Input.Keys.A)) && !(Gdx.input.isKeyPressed(Input.Keys.S)) && !(Gdx.input.isKeyPressed(Input.Keys.D))) {
