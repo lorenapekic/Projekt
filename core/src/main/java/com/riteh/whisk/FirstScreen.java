@@ -13,6 +13,13 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 
 /** First screen of the application. Displayed after the application is created. */
 public class FirstScreen implements Screen {
@@ -40,6 +47,9 @@ public class FirstScreen implements Screen {
 
     TiledMap map;
     OrthogonalTiledMapRenderer renderer;
+
+    Stage stage = new Stage(new ScreenViewport());
+    Skin skin = new Skin(Gdx.files.internal("ButtonSkin/skin.json"));
 
     public FirstScreen(final WhiskeredAway game) {
         this.game = game;
@@ -76,29 +86,65 @@ public class FirstScreen implements Screen {
     public void render(float delta) {
        switch (game.state) {
            case PAUSED:
-               Gdx.gl.glClearColor( 1, 1, 1, 1 );
+               game.currentMusic.pause();
+               Gdx.gl.glClearColor( 0, 0, 0, 1 );
                Gdx.gl.glClear( GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT );
 
                camera.update();
 
                game.batch.setProjectionMatrix(camera.combined);
                game.batch.begin();
-               game.font.setColor(0, 0, 0, 1);
+               game.font.setColor(1, 1, 1, 1);
                game.font.getData().setScale(2f, 2f);
-               game.font.draw(game.batch, "WHISKERED AWAY", 250, 300);
-               game.font.draw(game.batch, "The game is paused", 300, 200);
+               game.font.draw(game.batch, "WHISKERED AWAY", 480/2, 400);
+               game.font.draw(game.batch, "The game is paused", 480/2, 300);
                game.batch.end();
+
+               Gdx.input.setInputProcessor(stage);
+               TextButton resume = new TextButton("Resume", skin);
+               TextButton quit = new TextButton("Quit", skin);
+
+               resume.setHeight(40);
+               resume.setWidth(100);
+               resume.getLabel().setFontScaleX(1.2f);
+               resume.getLabel().setFontScaleY(1.2f);
+
+               quit.setHeight(40);
+               quit.setWidth(100);
+               quit.getLabel().setFontScaleX(1.2f);
+               quit.getLabel().setFontScaleY(1.2f);
+
+               resume.setPosition(camera.viewportWidth/2 - resume.getWidth(), camera.viewportHeight/2 - resume.getHeight());
+               quit.setPosition(camera.viewportWidth/2 - resume.getWidth(), camera.viewportHeight/2 - 50 - quit.getHeight());
 
                if(Gdx.input.isKeyJustPressed(Input.Keys.P)) {
                    game.state = gameState.RUNNING;
                }
 
-               if(Gdx.input.isKeyJustPressed((Input.Keys.Q))) {
-                   game.state = gameState.RUNNING;
-                   game.setScreen(new MainMenuScreen(game));
-               }
+               resume.addListener(new ChangeListener() {
+                    @Override
+                    public void changed(ChangeEvent event, Actor actor) {
+                        game.selectSoundEffect.play(0.6f);
+                        game.state = gameState.RUNNING;
+                    }
+               });
+
+               quit.addListener(new ChangeListener() {
+                    @Override
+                    public void changed(ChangeEvent event, Actor actor) {
+                        game.selectSoundEffect.play(0.6f);
+                        game.state = gameState.RUNNING;
+                        game.setScreen(new MainMenuScreen(game));
+                    }
+               });
+
+               stage.addActor(resume);
+               stage.addActor(quit);
+               stage.draw();
                break;
+
            case RUNNING:
+               game.currentMusic.play();
                elapsed += Gdx.graphics.getDeltaTime();
                Gdx.gl.glClearColor(0,0,0,1);
                Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -144,7 +190,6 @@ public class FirstScreen implements Screen {
                if(Gdx.input.isKeyJustPressed(Input.Keys.P)) {
                     game.state = gameState.PAUSED;
                }
-
                 /*
                 if (cat.x < 0 + 80) cat.x = 0 + 80;
                 if (cat.x > 800 - 144) cat.x = 800 - 144;
@@ -165,6 +210,8 @@ public class FirstScreen implements Screen {
     public void resize(int width, int height) {
         camera.viewportWidth = width;
         camera.viewportHeight = height;
+        stage.clear();
+        stage.getViewport().update(width, height, true);
         camera.update();
     }
 
@@ -187,5 +234,7 @@ public class FirstScreen implements Screen {
     @Override
     public void dispose() {
         // Destroy screen's assets here.
+        stage.dispose();
+        skin.dispose();
     }
 }

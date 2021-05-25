@@ -1,76 +1,104 @@
 package com.riteh.whisk;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
-import javax.swing.JToggleButton;
+import java.awt.Rectangle;
 
 public class MainMenuScreen implements Screen {
 
     final WhiskeredAway game;
-
     OrthographicCamera camera;
 
-    Stage stage = new Stage(new ScreenViewport());
-    Skin skin = new Skin(Gdx.files.internal("ButtonSkin/skin.json"));
+    private Stage stage = new Stage(new ScreenViewport());
+    private Skin skin = new Skin(Gdx.files.internal("ButtonSkin/skin.json"));
+
+    private float elapsed;
+    private Rectangle cat;
+    private Animation<TextureRegion> sleepingAnim;
+
+    private Sound startSoundEffect;
 
     public MainMenuScreen(final WhiskeredAway game) {
         this.game = game;
-
+        game.currentMusic.play();
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 800, 480);
+
+        cat = new Rectangle();
+        cat.x = 800 / 2 - 100 / 2 + 100;
+        cat.y = 20;
+
+        cat.width = 200;
+        cat.height = 200;
+
+        sleepingAnim = GifDecoder.loadGIFAnimation(Animation.PlayMode.LOOP, Gdx.files.internal("Cat/cat_sleepMainMenuAnimation.gif").read());
+        startSoundEffect = Gdx.audio.newSound(Gdx.files.internal(("Audio/select_one.mp3")));
     }
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor( 1, 1, 1, 1 );
+        Gdx.gl.glClearColor( 0, 0, 0, 1 );
         Gdx.gl.glClear( GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT );
+        elapsed += Gdx.graphics.getDeltaTime();
 
         camera.update();
 
         game.batch.setProjectionMatrix(camera.combined);
         game.batch.begin();
-        game.font.setColor(0, 0, 0, 1);
+        game.font.setColor(1, 1, 1, 1);
         game.font.getData().setScale(2f, 2f);
         game.font.draw(game.batch, "WHISKERED AWAY", 250, 300);
-        //game.font.draw(game.batch, "Press enter to begin", 300, 200);
+        game.batch.draw(sleepingAnim.getKeyFrame(elapsed), cat.x,cat.y,cat.height,cat.width);
         game.batch.end();
 
         Gdx.input.setInputProcessor(stage);
-        TextButton startGame = new TextButton("Start Game",skin);
-        TextButton settings = new TextButton("Settings",skin);
-        startGame.setPosition(200, 200);
-        settings.setPosition(200,150);
+        TextButton startGame = new TextButton("Start Game",skin, "default");
+        TextButton settings = new TextButton("Settings",skin, "default");
+
+        startGame.setHeight(40);
+        startGame.setWidth(100);
+        startGame.getLabel().setFontScaleX(1.2f);
+        startGame.getLabel().setFontScaleY(1.2f);
+
+        settings.setHeight(40);
+        settings.setWidth(100);
+        settings.getLabel().setFontScaleX(1.2f);
+        settings.getLabel().setFontScaleY(1.2f);
+
+        startGame.setPosition(camera.viewportWidth/2 - startGame.getWidth(), camera.viewportHeight/2  - startGame.getHeight());
+        settings.setPosition(camera.viewportWidth/2 - startGame.getWidth(),camera.viewportHeight/2 - 50 - settings.getHeight());
+
         startGame.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                startSoundEffect.play(0.1f);
                 game.setScreen(new FirstScreen(game));
             }
         });
+
         settings.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                //add options screen
-                //game.setScreen((new FirstScreen(game)));
+                game.selectSoundEffect.play(0.6f);
+                game.setScreen((new OptionScreen(game)));
             }
         });
-        //settings.addListener();
+
         stage.addActor(startGame);
         stage.addActor(settings);
         stage.draw();
-
     }
 
     @Override
@@ -83,6 +111,8 @@ public class MainMenuScreen implements Screen {
     public void resize(int width, int height) {
         camera.viewportWidth = width;
         camera.viewportHeight = height;
+        stage.clear();
+        stage.getViewport().update(width, height, true);
         camera.update();
     }
 
