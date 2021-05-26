@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
@@ -45,6 +46,7 @@ public class MainMenuScreen implements Screen {
 
         sleepingAnim = GifDecoder.loadGIFAnimation(Animation.PlayMode.LOOP, Gdx.files.internal("Cat/cat_sleepMainMenuAnimation.gif").read());
         startSoundEffect = Gdx.audio.newSound(Gdx.files.internal(("Audio/select_one.mp3")));
+
     }
 
     @Override
@@ -59,7 +61,7 @@ public class MainMenuScreen implements Screen {
         game.batch.begin();
         game.font.setColor(1, 1, 1, 1);
         game.font.getData().setScale(2f, 2f);
-        game.font.draw(game.batch, "WHISKERED AWAY", 250, 300);
+        game.font.draw(game.batch, "WHISKERED AWAY", 270, 330);
         game.batch.draw(sleepingAnim.getKeyFrame(elapsed), cat.x,cat.y,cat.height,cat.width);
         game.batch.end();
 
@@ -77,8 +79,8 @@ public class MainMenuScreen implements Screen {
         settings.getLabel().setFontScaleX(1.2f);
         settings.getLabel().setFontScaleY(1.2f);
 
-        startGame.setPosition(camera.viewportWidth/2 - startGame.getWidth(), camera.viewportHeight/2  - startGame.getHeight());
-        settings.setPosition(camera.viewportWidth/2 - startGame.getWidth(),camera.viewportHeight/2 - 50 - settings.getHeight());
+        startGame.setPosition(camera.viewportWidth/2 - startGame.getWidth()/2, camera.viewportHeight/2  - startGame.getHeight());
+        settings.setPosition(camera.viewportWidth/2 - startGame.getWidth()/2,camera.viewportHeight/2 - 50 - settings.getHeight());
 
         startGame.addListener(new ChangeListener() {
             @Override
@@ -98,6 +100,7 @@ public class MainMenuScreen implements Screen {
 
         stage.addActor(startGame);
         stage.addActor(settings);
+        stage.act();
         stage.draw();
     }
 

@@ -101,8 +101,8 @@ public class FirstScreen implements Screen {
                game.batch.begin();
                game.font.setColor(1, 1, 1, 1);
                game.font.getData().setScale(2f, 2f);
-               game.font.draw(game.batch, "WHISKERED AWAY", 480/2, 400);
-               game.font.draw(game.batch, "The game is paused", 480/2, 300);
+               game.font.draw(game.batch, "WHISKERED AWAY", 270, 400);
+               game.font.draw(game.batch, "The game is paused", 270, 300);
                game.batch.end();
 
                Gdx.input.setInputProcessor(stage);
@@ -119,8 +119,8 @@ public class FirstScreen implements Screen {
                quit.getLabel().setFontScaleX(1.2f);
                quit.getLabel().setFontScaleY(1.2f);
 
-               resume.setPosition(camera.viewportWidth/2 - resume.getWidth(), camera.viewportHeight/2 - resume.getHeight());
-               quit.setPosition(camera.viewportWidth/2 - resume.getWidth(), camera.viewportHeight/2 - 50 - quit.getHeight());
+               resume.setPosition(camera.viewportWidth/2 - resume.getWidth()/2, camera.viewportHeight/2 - resume.getHeight());
+               quit.setPosition(camera.viewportWidth/2 - resume.getWidth()/2, camera.viewportHeight/2 - 50 - quit.getHeight());
 
                if(Gdx.input.isKeyJustPressed(Input.Keys.P)) {
                    game.state = gameState.RUNNING;
@@ -145,6 +145,7 @@ public class FirstScreen implements Screen {
 
                stage.addActor(resume);
                stage.addActor(quit);
+               stage.act();
                stage.draw();
                break;
 
