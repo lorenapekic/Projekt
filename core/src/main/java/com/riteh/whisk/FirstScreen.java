@@ -80,7 +80,6 @@ public class FirstScreen implements Screen {
     @Override
     public void show() {
         map = new TmxMapLoader().load("Maps/test2.tmx");
-        renderer = new OrthogonalTiledMapRenderer(map);
         mapLayer = (TiledMapTileLayer) map.getLayers().get(0);
         renderer = new OrthogonalTiledMapRenderer(map, 2f);
         camera = new OrthographicCamera();
