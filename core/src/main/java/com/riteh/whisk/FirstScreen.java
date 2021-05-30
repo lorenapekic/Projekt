@@ -8,10 +8,14 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -19,8 +23,11 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+
+import java.util.Iterator;
 
 /** First screen of the application. Displayed after the application is created. */
 public class FirstScreen implements Screen {
@@ -49,6 +56,7 @@ public class FirstScreen implements Screen {
     TiledMap map;
     OrthogonalTiledMapRenderer renderer;
     TiledMapTileLayer mapLayer;
+    TiledMapTileLayer l1;
     boolean isBlocked;
 
     Stage stage = new Stage(new ScreenViewport());
@@ -69,18 +77,27 @@ public class FirstScreen implements Screen {
         keyPressedTime = 0f;
         keyDelta = 0.25f;
 
-        cat = new Rectangle();
-        cat.x = 800 / 2 - 64 / 2;
-        cat.y = 224;
+        map = new TmxMapLoader().load("Maps/test2.tmx");
+        mapLayer = (TiledMapTileLayer) map.getLayers().get(0);
 
+        cat = new Rectangle();
+
+        String entrance = "north";
+        for (MapObject object : map.getLayers().get("objects").getObjects()) {
+            if (object instanceof RectangleMapObject) {
+                RectangleMapObject rect = ((RectangleMapObject) object);
+                if (object.getProperties().containsKey(entrance)) {
+                    cat.x = rect.getRectangle().x*2;
+                    cat.y = rect.getRectangle().y*2;
+                    }
+            }
+        }
         cat.width = 64;
         cat.height = 64;
     }
 
     @Override
     public void show() {
-        map = new TmxMapLoader().load("Maps/test2.tmx");
-        mapLayer = (TiledMapTileLayer) map.getLayers().get(0);
         renderer = new OrthogonalTiledMapRenderer(map, 2f);
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 800, 480);
@@ -155,7 +172,7 @@ public class FirstScreen implements Screen {
                Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
                renderer.setView(camera);
-               int[] type = new int[]{0,1};
+               int[] type = new int[]{0,1,2,3,4};
                renderer.render(type);
                camera.update();
 
