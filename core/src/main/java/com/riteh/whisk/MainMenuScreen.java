@@ -86,6 +86,7 @@ public class MainMenuScreen implements Screen {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 startSoundEffect.play(0.1f);
+                stage.dispose();
                 game.setScreen(new FirstScreen(game));
             }
         });

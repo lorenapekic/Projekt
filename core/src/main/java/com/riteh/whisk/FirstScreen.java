@@ -13,6 +13,7 @@ import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
@@ -27,7 +28,10 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 /** First screen of the application. Displayed after the application is created. */
 public class FirstScreen implements Screen {
@@ -52,6 +56,8 @@ public class FirstScreen implements Screen {
     float keyDelta;
 
     Rectangle cat;
+
+    Array<Potion> potions;
 
     TiledMap map;
     OrthogonalTiledMapRenderer renderer;
@@ -80,20 +86,34 @@ public class FirstScreen implements Screen {
         map = new TmxMapLoader().load("Maps/test2.tmx");
         mapLayer = (TiledMapTileLayer) map.getLayers().get(0);
 
+        //create potion array
+        potions = new Array<Potion>();
+
+        //to-do: change number of potions with max potion per level!
+        for(int i = 0; i < 2; i++) {
+            Potion new_potion = new Potion("Small health potion", "Restores 50 health", 50, "Cat/potion.jpg");
+            new_potion.setHpRestore(50);
+            potions.add(new_potion);
+        }
+
         cat = new Rectangle();
 
         String entrance = "north";
+        int current_potion = 0;
         for (MapObject object : map.getLayers().get("objects").getObjects()) {
             if (object instanceof RectangleMapObject) {
                 RectangleMapObject rect = ((RectangleMapObject) object);
                 if (object.getProperties().containsKey(entrance)) {
                     cat.x = rect.getRectangle().x*2;
                     cat.y = rect.getRectangle().y*2;
-                    }
+                }
 
                 //generacija neprijatelja i/ili predmeta
-                //if (object.getProperties().containsKey("spawn") {}
-
+                if (object.getProperties().containsKey("spawn")) {
+                    potions.get(current_potion).itemRectangle.x = rect.getRectangle().x*2;
+                    potions.get(current_potion).itemRectangle.y = rect.getRectangle().y*2;
+                    current_potion++;
+                }
             }
         }
         cat.width = 64;
@@ -142,15 +162,12 @@ public class FirstScreen implements Screen {
                resume.setPosition(camera.viewportWidth/2 - resume.getWidth()/2, camera.viewportHeight/2 - resume.getHeight());
                quit.setPosition(camera.viewportWidth/2 - resume.getWidth()/2, camera.viewportHeight/2 - 50 - quit.getHeight());
 
-               if(Gdx.input.isKeyJustPressed(Input.Keys.P)) {
-                   game.state = gameState.RUNNING;
-               }
-
                resume.addListener(new ChangeListener() {
                     @Override
                     public void changed(ChangeEvent event, Actor actor) {
                         game.selectSoundEffect.play(0.6f);
                         game.state = gameState.RUNNING;
+                        stage.clear();
                     }
                });
 
@@ -183,8 +200,22 @@ public class FirstScreen implements Screen {
                game.batch.setProjectionMatrix(camera.combined);
 
                game.batch.begin();
+               //draw potions
+               for(Potion currentPotion : potions) {
+                   if(!currentPotion.isPickedUp()) {
+                       game.batch.draw(currentPotion.itemImage, currentPotion.itemRectangle.x, currentPotion.itemRectangle.y, currentPotion.itemRectangle.width, currentPotion.itemRectangle.height);
+                   }
+               }
                game.batch.draw(currentAnim.getKeyFrame(elapsed), cat.x, cat.y, cat.width, cat.height);
                game.batch.end();
+
+                //check if potions are picked up
+               for(Potion currentPotion : potions) {
+                   if(cat.overlaps(currentPotion.itemRectangle)) {
+                       currentPotion.setPickedUp(true);
+                       //add potion to player's inventory
+                   }
+               }
 
                if (Gdx.input.isKeyPressed(Input.Keys.A)) {
                    keyPressedTime += Gdx.graphics.getDeltaTime();

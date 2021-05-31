@@ -83,12 +83,11 @@ public class OptionScreen implements Screen {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 game.selectSoundEffect.play(0.6f);
+                stage.dispose();
                 game.setScreen(new MainMenuScreen(game));
             }
         });
 
-        /*stage.addActor(back);
-        stage.addActor(volumeSlider);*/
         stage.addActor(settingsTable);
         stage.addActor(back);
         stage.act();
