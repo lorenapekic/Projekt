@@ -90,6 +90,10 @@ public class FirstScreen implements Screen {
                     cat.x = rect.getRectangle().x*2;
                     cat.y = rect.getRectangle().y*2;
                     }
+
+                //generacija neprijatelja i/ili predmeta
+                //if (object.getProperties().containsKey("spawn") {}
+
             }
         }
         cat.width = 64;
