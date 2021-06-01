@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -44,6 +45,7 @@ public class FirstScreen implements Screen {
     Stage stage = new Stage(new ScreenViewport());
     Skin skin = new Skin(Gdx.files.internal("ButtonSkin/skin.json"));
     mapClass map;
+    TiledMapTileLayer.Cell cell;
 
     public FirstScreen(final WhiskeredAway game) {
         this.game = game;
@@ -52,7 +54,7 @@ public class FirstScreen implements Screen {
         exit = new Rectangle();
 
         //create current level and spawn potions, set cat spawn coordinates and exit coordinates
-        map = new mapClass("Maps/level0.tmx", "MapTypePlaceholder", "north", "south");
+        map = new mapClass("Maps/test2.tmx", "MapTypePlaceholder", "north"/*, "south"*/);
 
         //set entrance and exit coordinates
         float[] entranceCoordinates = new float[2];
@@ -60,10 +62,10 @@ public class FirstScreen implements Screen {
         cat.x = entranceCoordinates[0];
         cat.y = entranceCoordinates[1];
 
-        float[] exitCoordinates = new float[2];
+        /*float[] exitCoordinates = new float[2];
         exitCoordinates = map.calculateExitCoordinates();
         exit.x = exitCoordinates[0];
-        exit.y = exitCoordinates[1];
+        exit.y = exitCoordinates[1];*/
 
         animLeft = GifDecoder.loadGIFAnimation(Animation.PlayMode.LOOP, Gdx.files.internal("Cat/Cat_walkLeft.gif").read());
         animRight = GifDecoder.loadGIFAnimation(Animation.PlayMode.LOOP, Gdx.files.internal("Cat/Cat_walkRight.gif").read());
@@ -139,7 +141,7 @@ public class FirstScreen implements Screen {
                     public void changed(ChangeEvent event, Actor actor) {
                         game.selectSoundEffect.play(0.6f);
                         game.state = gameState.RUNNING;
-                        map = new mapClass("Maps/level0.tmx", "MapTypePlaceholder", "north", "east");
+                        map = new mapClass("Maps/level0.tmx", "MapTypePlaceholder", "north"/*, "east"*/);
                         game.setScreen(new MainMenuScreen(game));
                     }
                });
@@ -182,26 +184,20 @@ public class FirstScreen implements Screen {
                    }
                }
 
-               //check for exit
-               if(cat.overlaps(exit)) {
-                   //load next map->figure out mechanism for map changing
-                   map = new mapClass("Maps/level6.tmx", "MapTypePlaceholder", "north", "east");
-
-                   //set new exit and entrance coordinates
-                   float[] entranceCoordinates = new float[2];
-                   entranceCoordinates = map.calculateEntranceCoordinates();
-                   cat.x = entranceCoordinates[0];
-                   cat.y = entranceCoordinates[1];
-
-                   float[] exitCoordinates = new float[2];
-                   exitCoordinates = map.calculateExitCoordinates();
-                   exit.x = exitCoordinates[0];
-                   exit.y = exitCoordinates[1];
-               }
 
                if (Gdx.input.isKeyPressed(Input.Keys.A)) {
                    keyPressedTime += Gdx.graphics.getDeltaTime();
                    map.isBlocked = map.mapLayer.getCell((int) (cat.x / 32), (int) ((cat.y + 16) / 32)).getTile().getProperties().containsKey("blocked");
+                   cell = map.westExit.getCell((int) (cat.x / 32), (int) ((cat.y + 16) / 32));
+                   if (cell != null) map.isExit = map.westExit.getCell((int) (cat.x / 32), (int) ((cat.y + 16) / 32)).getTile().getProperties().containsKey("west");
+                   if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && map.isExit) {
+                       map = new mapClass("Maps/level6.tmx", "MapTypePlaceholder", "east"/*, "east"*/);
+                       //set new exit and entrance coordinates
+                       float[] entranceCoordinates = new float[2];
+                       entranceCoordinates = map.calculateEntranceCoordinates();
+                       cat.x = entranceCoordinates[0];
+                       cat.y = entranceCoordinates[1];
+                   }
                    if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && !map.isBlocked) cat.x -= 32;
                        currentAnim = animLeft;
                        faceDir = 1;
@@ -209,6 +205,16 @@ public class FirstScreen implements Screen {
                if (Gdx.input.isKeyPressed(Input.Keys.D)) {
                    keyPressedTime += Gdx.graphics.getDeltaTime();
                    map.isBlocked = map.mapLayer.getCell((int) ((cat.x + 32) / 32 + 1), (int) ((cat.y + 16) / 32)).getTile().getProperties().containsKey("blocked");
+                   cell = map.eastExit.getCell((int) ((cat.x + 32) / 32 + 1), (int) ((cat.y + 16) / 32));
+                   if (cell != null) map.isExit = map.eastExit.getCell((int) ((cat.x + 32) / 32 + 1), (int) ((cat.y + 16) / 32)).getTile().getProperties().containsKey("east");
+                   if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && map.isExit) {
+                       map = new mapClass("Maps/level6.tmx", "MapTypePlaceholder", "west"/*, "east"*/);
+                       //set new exit and entrance coordinates
+                       float[] entranceCoordinates = new float[2];
+                       entranceCoordinates = map.calculateEntranceCoordinates();
+                       cat.x = entranceCoordinates[0];
+                       cat.y = entranceCoordinates[1];
+                   }
                    if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && !map.isBlocked) cat.x += 32;
                        currentAnim = animRight;
                        faceDir = 2;
@@ -216,12 +222,32 @@ public class FirstScreen implements Screen {
                if (Gdx.input.isKeyPressed(Input.Keys.W)) {
                    keyPressedTime += Gdx.graphics.getDeltaTime();
                    map.isBlocked = map.mapLayer.getCell((int) ((cat.x + 16) / 32), (int) ((cat.y + 16) / 32 + 1)).getTile().getProperties().containsKey("blocked");
+                   cell = map.northExit.getCell((int) ((cat.x + 16) / 32), (int) ((cat.y + 16) / 32 + 1));
+                   if (cell != null) map.isExit = map.northExit.getCell((int) ((cat.x + 16) / 32), (int) ((cat.y + 16) / 32 + 1)).getTile().getProperties().containsKey("north");
+                   if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && map.isExit) {
+                       map = new mapClass("Maps/level6.tmx", "MapTypePlaceholder", "south"/*, "east"*/);
+                       //set new exit and entrance coordinates
+                       float[] entranceCoordinates = new float[2];
+                       entranceCoordinates = map.calculateEntranceCoordinates();
+                       cat.x = entranceCoordinates[0];
+                       cat.y = entranceCoordinates[1];
+                   }
                    if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && !map.isBlocked) cat.y += 32;
                    currentAnim = animFront;
                }
                if (Gdx.input.isKeyPressed(Input.Keys.S)) {
                    keyPressedTime += Gdx.graphics.getDeltaTime();
                    map.isBlocked = map.mapLayer.getCell((int) ((cat.x + 16) / 32), (int) (cat.y / 32) - 1).getTile().getProperties().containsKey("blocked");
+                   cell = map.southExit.getCell((int) ((cat.x + 16) / 32), (int) (cat.y / 32) - 1);
+                   if (cell != null) map.isExit = map.southExit.getCell((int) ((cat.x + 16) / 32), (int) (cat.y / 32) - 1).getTile().getProperties().containsKey("south");
+                   if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && map.isExit) {
+                       map = new mapClass("Maps/level6.tmx", "MapTypePlaceholder", "north"/*, "east"*/);
+                       //set new exit and entrance coordinates
+                       float[] entranceCoordinates = new float[2];
+                       entranceCoordinates = map.calculateEntranceCoordinates();
+                       cat.x = entranceCoordinates[0];
+                       cat.y = entranceCoordinates[1];
+                   }
                    if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && !map.isBlocked) cat.y -= 32;
                    currentAnim = animBack;
                }

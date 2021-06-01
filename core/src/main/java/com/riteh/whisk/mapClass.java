@@ -9,6 +9,8 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.utils.Array;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 public class mapClass {
     String name; //filepath to map
     String type;
@@ -19,17 +21,26 @@ public class mapClass {
     TiledMap currentLevel;
     OrthogonalTiledMapRenderer renderer;
     TiledMapTileLayer mapLayer;
+    TiledMapTileLayer northExit;
+    TiledMapTileLayer westExit;
+    TiledMapTileLayer southExit;
+    TiledMapTileLayer eastExit;
     boolean isBlocked;
+    boolean isExit;
     Array<Potion> potions; //array that holds potions for the current level
 
-    public mapClass(String name, String type, String entrance, String exit) {
+    public mapClass(String name, String type, String entrance) {
         this.name = name;
         this.type = type;
         this.entrance = entrance;
-        this.exit = exit;
+        ThreadLocalRandom random = ThreadLocalRandom.current();
 
-        this.currentLevel = new TmxMapLoader().load(name);
+        this.currentLevel = new TmxMapLoader().load(this.name);
         this.mapLayer = (TiledMapTileLayer) currentLevel.getLayers().get(0);
+        this.northExit = (TiledMapTileLayer) currentLevel.getLayers().get(1);
+        this.westExit = (TiledMapTileLayer) currentLevel.getLayers().get(2);
+        this.southExit = (TiledMapTileLayer) currentLevel.getLayers().get(3);
+        this.eastExit = (TiledMapTileLayer) currentLevel.getLayers().get(4);
         this.renderer = new OrthogonalTiledMapRenderer(currentLevel, 2f);
 
         this.potions = new Array<Potion>();
@@ -77,21 +88,4 @@ public class mapClass {
         }
         return coordinates;
     }
-
-    //get exit coordinates
-    public float[] calculateExitCoordinates() {
-        float[] coordinates = new float[2];
-
-        for (MapObject object : this.currentLevel.getLayers().get("objects").getObjects()) {
-            if (object instanceof RectangleMapObject) {
-                RectangleMapObject rect = ((RectangleMapObject) object);
-                if (object.getProperties().containsKey(this.exit)) {
-                    coordinates[0] = rect.getRectangle().x*2;
-                    coordinates[1] = rect.getRectangle().y*2;
-                }
-            }
-        }
-        return coordinates;
-    }
-
 }
