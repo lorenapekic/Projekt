@@ -56,20 +56,17 @@ public class FirstScreen implements Screen {
     float keyDelta;
 
     Rectangle cat;
-
-    Array<Potion> potions;
-
-    TiledMap map;
-    OrthogonalTiledMapRenderer renderer;
-    TiledMapTileLayer mapLayer;
-    TiledMapTileLayer l1;
-    boolean isBlocked;
+    Rectangle exit;
 
     Stage stage = new Stage(new ScreenViewport());
     Skin skin = new Skin(Gdx.files.internal("ButtonSkin/skin.json"));
+    mapClass map;
 
     public FirstScreen(final WhiskeredAway game) {
         this.game = game;
+
+        //create current level and spawn potions
+        map = new mapClass("Maps/level0.tmx", "MapTypePlaceholder", "EntrancePlaceholder", "ExitPlaceholder");
 
         animLeft = GifDecoder.loadGIFAnimation(Animation.PlayMode.LOOP, Gdx.files.internal("Cat/Cat_walkLeft.gif").read());
         animRight = GifDecoder.loadGIFAnimation(Animation.PlayMode.LOOP, Gdx.files.internal("Cat/Cat_walkRight.gif").read());
@@ -83,36 +80,25 @@ public class FirstScreen implements Screen {
         keyPressedTime = 0f;
         keyDelta = 0.25f;
 
-        map = new TmxMapLoader().load("Maps/test2.tmx");
-        mapLayer = (TiledMapTileLayer) map.getLayers().get(0);
-
-        //create potion array
-        potions = new Array<Potion>();
-
-        //to-do: change number of potions with max potion per level!
-        for(int i = 0; i < 2; i++) {
-            Potion new_potion = new Potion("Small health potion", "Restores 50 health", 50, "Cat/potion.jpg");
-            new_potion.setHpRestore(50);
-            potions.add(new_potion);
-        }
-
         cat = new Rectangle();
+        exit = new Rectangle();
+
+        exit.width = 16;
+        exit.height = 16;
 
         String entrance = "north";
         int current_potion = 0;
-        for (MapObject object : map.getLayers().get("objects").getObjects()) {
+        for (MapObject object : map.currentLevel.getLayers().get("objects").getObjects()) {
             if (object instanceof RectangleMapObject) {
                 RectangleMapObject rect = ((RectangleMapObject) object);
                 if (object.getProperties().containsKey(entrance)) {
                     cat.x = rect.getRectangle().x*2;
                     cat.y = rect.getRectangle().y*2;
                 }
-
-                //generacija neprijatelja i/ili predmeta
-                if (object.getProperties().containsKey("spawn")) {
-                    potions.get(current_potion).itemRectangle.x = rect.getRectangle().x*2;
-                    potions.get(current_potion).itemRectangle.y = rect.getRectangle().y*2;
-                    current_potion++;
+                //exit rectangle->currently south is default exit, change it eventually
+                if(object.getProperties().containsKey("south")) {
+                    exit.x = rect.getRectangle().x*2;
+                    exit.y = rect.getRectangle().y*2;
                 }
             }
         }
@@ -122,7 +108,6 @@ public class FirstScreen implements Screen {
 
     @Override
     public void show() {
-        renderer = new OrthogonalTiledMapRenderer(map, 2f);
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 800, 480);
     }
@@ -176,6 +161,7 @@ public class FirstScreen implements Screen {
                     public void changed(ChangeEvent event, Actor actor) {
                         game.selectSoundEffect.play(0.6f);
                         game.state = gameState.RUNNING;
+                        map = new mapClass("Maps/level0.tmx", "MapTypePlaceholder", "EntrancePlaceholder", "ExitPlaceholder");
                         game.setScreen(new MainMenuScreen(game));
                     }
                });
@@ -192,16 +178,16 @@ public class FirstScreen implements Screen {
                Gdx.gl.glClearColor(0,0,0,1);
                Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-               renderer.setView(camera);
+               map.renderer.setView(camera);
                int[] type = new int[]{0,1,2,3,4};
-               renderer.render(type);
+               map.renderer.render(type);
                camera.update();
 
                game.batch.setProjectionMatrix(camera.combined);
 
                game.batch.begin();
                //draw potions
-               for(Potion currentPotion : potions) {
+               for(Potion currentPotion : map.potions) {
                    if(!currentPotion.isPickedUp()) {
                        game.batch.draw(currentPotion.itemImage, currentPotion.itemRectangle.x, currentPotion.itemRectangle.y, currentPotion.itemRectangle.width, currentPotion.itemRectangle.height);
                    }
@@ -209,38 +195,44 @@ public class FirstScreen implements Screen {
                game.batch.draw(currentAnim.getKeyFrame(elapsed), cat.x, cat.y, cat.width, cat.height);
                game.batch.end();
 
-                //check if potions are picked up
-               for(Potion currentPotion : potions) {
+               //check if potions are picked up
+               for(Potion currentPotion : map.potions) {
                    if(cat.overlaps(currentPotion.itemRectangle)) {
                        currentPotion.setPickedUp(true);
                        //add potion to player's inventory
                    }
                }
 
+               //check for exit
+               if(cat.overlaps(exit)) {
+                   //load next map->figure out mechanism for map changin
+                   map = new mapClass("Maps/level6.tmx", "MapTypePlaceholder", "EntrancePlaceholder", "ExitPlaceholder");
+               }
+
                if (Gdx.input.isKeyPressed(Input.Keys.A)) {
                    keyPressedTime += Gdx.graphics.getDeltaTime();
-                   isBlocked = mapLayer.getCell((int) (cat.x / 32), (int) ((cat.y + 16) / 32)).getTile().getProperties().containsKey("blocked");
-                   if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && !isBlocked) cat.x -= 32;
+                   map.isBlocked = map.mapLayer.getCell((int) (cat.x / 32), (int) ((cat.y + 16) / 32)).getTile().getProperties().containsKey("blocked");
+                   if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && !map.isBlocked) cat.x -= 32;
                        currentAnim = animLeft;
                        faceDir = 1;
                }
                if (Gdx.input.isKeyPressed(Input.Keys.D)) {
                    keyPressedTime += Gdx.graphics.getDeltaTime();
-                   isBlocked = mapLayer.getCell((int) ((cat.x + 32) / 32 + 1), (int) ((cat.y + 16) / 32)).getTile().getProperties().containsKey("blocked");
-                   if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && !isBlocked) cat.x += 32;
+                   map.isBlocked = map.mapLayer.getCell((int) ((cat.x + 32) / 32 + 1), (int) ((cat.y + 16) / 32)).getTile().getProperties().containsKey("blocked");
+                   if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && !map.isBlocked) cat.x += 32;
                        currentAnim = animRight;
                        faceDir = 2;
                }
                if (Gdx.input.isKeyPressed(Input.Keys.W)) {
                    keyPressedTime += Gdx.graphics.getDeltaTime();
-                   isBlocked = mapLayer.getCell((int) ((cat.x + 16) / 32), (int) ((cat.y + 16) / 32 + 1)).getTile().getProperties().containsKey("blocked");
-                   if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && !isBlocked) cat.y += 32;
+                   map.isBlocked = map.mapLayer.getCell((int) ((cat.x + 16) / 32), (int) ((cat.y + 16) / 32 + 1)).getTile().getProperties().containsKey("blocked");
+                   if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && !map.isBlocked) cat.y += 32;
                    currentAnim = animFront;
                }
                if (Gdx.input.isKeyPressed(Input.Keys.S)) {
                    keyPressedTime += Gdx.graphics.getDeltaTime();
-                   isBlocked = mapLayer.getCell((int) ((cat.x + 16) / 32), (int) (cat.y / 32) - 1).getTile().getProperties().containsKey("blocked");
-                   if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && !isBlocked) cat.y -= 32;
+                   map.isBlocked = map.mapLayer.getCell((int) ((cat.x + 16) / 32), (int) (cat.y / 32) - 1).getTile().getProperties().containsKey("blocked");
+                   if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && !map.isBlocked) cat.y -= 32;
                    currentAnim = animBack;
                }
                if (!(Gdx.input.isKeyPressed(Input.Keys.W)) && !(Gdx.input.isKeyPressed(Input.Keys.A)) && !(Gdx.input.isKeyPressed(Input.Keys.S)) && !(Gdx.input.isKeyPressed(Input.Keys.D))) {

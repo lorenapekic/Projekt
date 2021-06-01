@@ -6,6 +6,11 @@ import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.maps.Map;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.maps.tiled.TmxMapLoader;
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 
 //for keeping track of game state
 enum gameState {
@@ -26,11 +31,12 @@ public class WhiskeredAway extends Game {
         font = new BitmapFont();
         batch = new SpriteBatch();
         state = gameState.RUNNING;
+
         currentMusic = Gdx.audio.newMusic(Gdx.files.internal("Audio/main-theme.mp3"));
         currentMusic.setLooping(true);
         selectSoundEffect = Gdx.audio.newSound((Gdx.files.internal("Audio/select_two.mp3")));
-        this.setScreen(new MainMenuScreen(this));
 
+        this.setScreen(new MainMenuScreen(this));
     }
 
     public float getMusicVolume() {
@@ -52,4 +58,5 @@ public class WhiskeredAway extends Game {
         currentMusic.dispose();
         selectSoundEffect.dispose();
     }
+
 }
