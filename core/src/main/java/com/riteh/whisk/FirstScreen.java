@@ -5,18 +5,8 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.maps.MapObject;
-import com.badlogic.gdx.maps.objects.RectangleMapObject;
-import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.TiledMapTile;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
-import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
-import com.badlogic.gdx.maps.tiled.TmxMapLoader;
-import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
-import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -24,14 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.badlogic.gdx.utils.viewport.Viewport;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 
 /** First screen of the application. Displayed after the application is created. */
 public class FirstScreen implements Screen {
@@ -65,8 +48,22 @@ public class FirstScreen implements Screen {
     public FirstScreen(final WhiskeredAway game) {
         this.game = game;
 
-        //create current level and spawn potions
-        map = new mapClass("Maps/level0.tmx", "MapTypePlaceholder", "EntrancePlaceholder", "ExitPlaceholder");
+        cat = new Rectangle();
+        exit = new Rectangle();
+
+        //create current level and spawn potions, set cat spawn coordinates and exit coordinates
+        map = new mapClass("Maps/level0.tmx", "MapTypePlaceholder", "north", "south");
+
+        //set entrance and exit coordinates
+        float[] entranceCoordinates = new float[2];
+        entranceCoordinates = map.calculateEntranceCoordinates();
+        cat.x = entranceCoordinates[0];
+        cat.y = entranceCoordinates[1];
+
+        float[] exitCoordinates = new float[2];
+        exitCoordinates = map.calculateExitCoordinates();
+        exit.x = exitCoordinates[0];
+        exit.y = exitCoordinates[1];
 
         animLeft = GifDecoder.loadGIFAnimation(Animation.PlayMode.LOOP, Gdx.files.internal("Cat/Cat_walkLeft.gif").read());
         animRight = GifDecoder.loadGIFAnimation(Animation.PlayMode.LOOP, Gdx.files.internal("Cat/Cat_walkRight.gif").read());
@@ -80,28 +77,9 @@ public class FirstScreen implements Screen {
         keyPressedTime = 0f;
         keyDelta = 0.25f;
 
-        cat = new Rectangle();
-        exit = new Rectangle();
-
         exit.width = 16;
         exit.height = 16;
 
-        String entrance = "north";
-        int current_potion = 0;
-        for (MapObject object : map.currentLevel.getLayers().get("objects").getObjects()) {
-            if (object instanceof RectangleMapObject) {
-                RectangleMapObject rect = ((RectangleMapObject) object);
-                if (object.getProperties().containsKey(entrance)) {
-                    cat.x = rect.getRectangle().x*2;
-                    cat.y = rect.getRectangle().y*2;
-                }
-                //exit rectangle->currently south is default exit, change it eventually
-                if(object.getProperties().containsKey("south")) {
-                    exit.x = rect.getRectangle().x*2;
-                    exit.y = rect.getRectangle().y*2;
-                }
-            }
-        }
         cat.width = 64;
         cat.height = 64;
     }
@@ -161,7 +139,7 @@ public class FirstScreen implements Screen {
                     public void changed(ChangeEvent event, Actor actor) {
                         game.selectSoundEffect.play(0.6f);
                         game.state = gameState.RUNNING;
-                        map = new mapClass("Maps/level0.tmx", "MapTypePlaceholder", "EntrancePlaceholder", "ExitPlaceholder");
+                        map = new mapClass("Maps/level0.tmx", "MapTypePlaceholder", "north", "east");
                         game.setScreen(new MainMenuScreen(game));
                     }
                });
@@ -185,6 +163,7 @@ public class FirstScreen implements Screen {
 
                game.batch.setProjectionMatrix(camera.combined);
 
+
                game.batch.begin();
                //draw potions
                for(Potion currentPotion : map.potions) {
@@ -205,8 +184,19 @@ public class FirstScreen implements Screen {
 
                //check for exit
                if(cat.overlaps(exit)) {
-                   //load next map->figure out mechanism for map changin
-                   map = new mapClass("Maps/level6.tmx", "MapTypePlaceholder", "EntrancePlaceholder", "ExitPlaceholder");
+                   //load next map->figure out mechanism for map changing
+                   map = new mapClass("Maps/level6.tmx", "MapTypePlaceholder", "north", "east");
+
+                   //set new exit and entrance coordinates
+                   float[] entranceCoordinates = new float[2];
+                   entranceCoordinates = map.calculateEntranceCoordinates();
+                   cat.x = entranceCoordinates[0];
+                   cat.y = entranceCoordinates[1];
+
+                   float[] exitCoordinates = new float[2];
+                   exitCoordinates = map.calculateExitCoordinates();
+                   exit.x = exitCoordinates[0];
+                   exit.y = exitCoordinates[1];
                }
 
                if (Gdx.input.isKeyPressed(Input.Keys.A)) {

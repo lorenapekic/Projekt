@@ -62,6 +62,36 @@ public class mapClass {
         }
     }
 
-    //add other stuff like getting cat spawn coordinates for each map
+    //get spawn coordinates
+    public float[] calculateEntranceCoordinates() {
+        float[] coordinates = new float[2];
+
+        for (MapObject object : this.currentLevel.getLayers().get("objects").getObjects()) {
+            if (object instanceof RectangleMapObject) {
+                RectangleMapObject rect = ((RectangleMapObject) object);
+                if (object.getProperties().containsKey(this.entrance)) {
+                    coordinates[0] = rect.getRectangle().x*2;
+                    coordinates[1] = rect.getRectangle().y*2;
+                }
+            }
+        }
+        return coordinates;
+    }
+
+    //get exit coordinates
+    public float[] calculateExitCoordinates() {
+        float[] coordinates = new float[2];
+
+        for (MapObject object : this.currentLevel.getLayers().get("objects").getObjects()) {
+            if (object instanceof RectangleMapObject) {
+                RectangleMapObject rect = ((RectangleMapObject) object);
+                if (object.getProperties().containsKey(this.exit)) {
+                    coordinates[0] = rect.getRectangle().x*2;
+                    coordinates[1] = rect.getRectangle().y*2;
+                }
+            }
+        }
+        return coordinates;
+    }
 
 }
