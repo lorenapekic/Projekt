@@ -65,9 +65,49 @@ public class OptionScreen implements Screen {
             }
         });
 
+        Label controlsLabel = new Label("Controls", skin,  "white");
+        controlsLabel.setFontScale(1.8f);
+        Label upLabel = new Label("Up: ", skin,  "white");
+        upLabel.setFontScale(1.8f);
+        Label upControlLabel = new Label("W", skin,  "white");
+        upControlLabel.setFontScale(1.8f);
+        Label downLabel = new Label("Down: ", skin,  "white");
+        downLabel.setFontScale(1.8f);
+        Label downControlLabel = new Label("S", skin,  "white");
+        downControlLabel.setFontScale(1.8f);
+        Label leftLabel = new Label("Left: ", skin,  "white");
+        leftLabel.setFontScale(1.8f);
+        Label leftControlLabel = new Label("A", skin,  "white");
+        leftControlLabel.setFontScale(1.8f);
+        Label rightLabel = new Label("Right: ", skin,  "white");
+        rightLabel.setFontScale(1.8f);
+        Label rightControlLabel = new Label("D", skin,  "white");
+        rightControlLabel.setFontScale(1.8f);
+        Label pauseLabel = new Label("Pause: ", skin,  "white");
+        pauseLabel.setFontScale(1.8f);
+        Label pauseControlLabel = new Label("P", skin, "white");
+        pauseControlLabel.setFontScale(1.8f);
+
         Table settingsTable = new Table();
         settingsTable.setFillParent(true);
         settingsTable.center();
+        settingsTable.add(controlsLabel).colspan(2);
+        settingsTable.row();
+        settingsTable.add(upLabel).padRight(30);
+        settingsTable.add(upControlLabel);
+        settingsTable.row();
+        settingsTable.add(downLabel).padRight(30);
+        settingsTable.add(downControlLabel);
+        settingsTable.row();
+        settingsTable.add(leftLabel).padRight(30);
+        settingsTable.add(leftControlLabel);
+        settingsTable.row();
+        settingsTable.add(rightLabel).padRight(30);
+        settingsTable.add(rightControlLabel);
+        settingsTable.row();
+        settingsTable.add(pauseLabel).padRight(30);
+        settingsTable.add(pauseControlLabel);
+        settingsTable.row();
         settingsTable.add(volumeLabel).padRight(30);
         settingsTable.add(volumeSlider).width(200);
 
@@ -78,7 +118,7 @@ public class OptionScreen implements Screen {
         back.getLabel().setFontScaleX(1.2f);
         back.getLabel().setFontScaleY(1.2f);
 
-        back.setPosition(camera.viewportWidth/2 - back.getWidth()/2, 100);
+        back.setPosition(camera.viewportWidth/2 - back.getWidth()/2, 70);
         back.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {

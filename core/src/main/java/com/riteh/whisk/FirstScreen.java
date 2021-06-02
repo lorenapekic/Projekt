@@ -184,6 +184,7 @@ public class FirstScreen implements Screen {
                    }
                }
 
+               //create new mapCLass() to change the map, based on mapconstructorlist in maplayoutcreator
 
                if (Gdx.input.isKeyPressed(Input.Keys.A)) {
                    keyPressedTime += Gdx.graphics.getDeltaTime();

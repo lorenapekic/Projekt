@@ -11,7 +11,7 @@ import com.badlogic.gdx.utils.Array;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-public class mapClass {
+public class mapClass extends MapLayoutCreator {
     String name; //filepath to map
     String type;
     String entrance;
@@ -73,7 +73,7 @@ public class mapClass {
         }
     }
 
-    //get spawn coordinates
+    //get entrance coordinates
     public float[] calculateEntranceCoordinates() {
         float[] coordinates = new float[2];
 
