@@ -20,8 +20,8 @@ public class Item {
         this.itemImage = new Texture(Gdx.files.internal(itemImagePath));
 
         this.itemRectangle = new Rectangle();
-        this.itemRectangle.width = 32;
-        this.itemRectangle.height = 32;
+        this.itemRectangle.width = 28;
+        this.itemRectangle.height = 28;
 
         this.pickedUp = false;
     }

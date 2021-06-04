@@ -59,7 +59,7 @@ public class mapClass {
         //this.potions = new Array<Potion>();
         //spawnPotions();
         this.items = new Array<Item>();
-        spawnItems();
+        if (this.name != "Maps/levelS.tmx") spawnItems();
     }
 
     public void calculateVisibleLayers() {
@@ -120,8 +120,8 @@ public class mapClass {
                         }
 
                         items.add(new_item);
-                        items.get(currentItem).itemRectangle.x = rect.getRectangle().x*2+10;
-                        items.get(currentItem).itemRectangle.y = rect.getRectangle().y*2;
+                        items.get(currentItem).itemRectangle.x = rect.getRectangle().x*2+12;
+                        items.get(currentItem).itemRectangle.y = rect.getRectangle().y*2+3;
                         currentItem++;
                     }
                 }

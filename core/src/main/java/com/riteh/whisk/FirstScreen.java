@@ -187,7 +187,7 @@ public class FirstScreen implements Screen {
 
                //check if potions are picked up
                for(Item currentItem : map.items) {
-                   if(cat.overlaps(currentItem.itemRectangle)) {
+                   if(cat.contains(currentItem.itemRectangle)) {
                        if (currentItem.getName().equals("Portal")) {
                            game.level = new levelClass();
                            game.setScreen(new FirstScreen(game));
@@ -216,6 +216,7 @@ public class FirstScreen implements Screen {
                    if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && !map.isBlocked) cat.x -= 32;
                        currentAnim = animLeft;
                        faceDir = 1;
+                   map.isExit = false;
                }
                if (Gdx.input.isKeyPressed(Input.Keys.D)) {
                    keyPressedTime += Gdx.graphics.getDeltaTime();
@@ -233,6 +234,7 @@ public class FirstScreen implements Screen {
                    if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && !map.isBlocked) cat.x += 32;
                        currentAnim = animRight;
                        faceDir = 2;
+                       map.isExit = false;
                }
                if (Gdx.input.isKeyPressed(Input.Keys.W)) {
                    keyPressedTime += Gdx.graphics.getDeltaTime();
@@ -249,6 +251,7 @@ public class FirstScreen implements Screen {
                    }
                    if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && !map.isBlocked) cat.y += 32;
                    currentAnim = animFront;
+                   map.isExit = false;
                }
                if (Gdx.input.isKeyPressed(Input.Keys.S)) {
                    keyPressedTime += Gdx.graphics.getDeltaTime();
@@ -265,6 +268,7 @@ public class FirstScreen implements Screen {
                    }
                    if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && !map.isBlocked) cat.y -= 32;
                    currentAnim = animBack;
+                   map.isExit = false;
                }
                if (!(Gdx.input.isKeyPressed(Input.Keys.W)) && !(Gdx.input.isKeyPressed(Input.Keys.A)) && !(Gdx.input.isKeyPressed(Input.Keys.S)) && !(Gdx.input.isKeyPressed(Input.Keys.D))) {
                    keyPressedTime = 0f;
