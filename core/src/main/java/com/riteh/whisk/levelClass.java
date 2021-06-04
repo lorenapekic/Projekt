@@ -7,9 +7,11 @@ public class levelClass {
     boolean check;
     boolean hasExit;
     int si, sj;
+    boolean hasEntered;
 
     public levelClass() {
         this.level = new char[15][15];
+        this.hasEntered = false;
         this.generateLevel();
     }
 

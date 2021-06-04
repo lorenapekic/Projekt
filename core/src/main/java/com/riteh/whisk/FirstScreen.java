@@ -46,6 +46,8 @@ public class FirstScreen implements Screen {
     Skin skin = new Skin(Gdx.files.internal("ButtonSkin/skin.json"));
     mapClass map;
     TiledMapTileLayer.Cell cell;
+    int roomX, roomY;
+    int[] layers;
 
     public FirstScreen(final WhiskeredAway game) {
         this.game = game;
@@ -54,11 +56,13 @@ public class FirstScreen implements Screen {
         exit = new Rectangle();
 
         //create current level and spawn potions, set cat spawn coordinates and exit coordinates
-        map = new mapClass("Maps/test2.tmx", "MapTypePlaceholder", "north"/*, "south"*/);
+        map = new mapClass(game.level, 7, 7, game);
+        roomX = 7;
+        roomY = 7;
 
         //set entrance and exit coordinates
-        float[] entranceCoordinates = new float[2];
-        entranceCoordinates = map.calculateEntranceCoordinates();
+        float[] entranceCoordinates = map.calculateEntranceCoordinates("north");
+        //entranceCoordinates = map.calculateEntranceCoordinates();
         cat.x = entranceCoordinates[0];
         cat.y = entranceCoordinates[1];
 
@@ -141,7 +145,7 @@ public class FirstScreen implements Screen {
                     public void changed(ChangeEvent event, Actor actor) {
                         game.selectSoundEffect.play(0.6f);
                         game.state = gameState.RUNNING;
-                        map = new mapClass("Maps/level0.tmx", "MapTypePlaceholder", "north"/*, "east"*/);
+                        map = new mapClass(game.level, 7, 7, game);
                         game.setScreen(new MainMenuScreen(game));
                     }
                });
@@ -159,8 +163,7 @@ public class FirstScreen implements Screen {
                Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
                map.renderer.setView(camera);
-               int[] type = new int[]{0,1,2,3,4};
-               map.renderer.render(type);
+               map.renderer.render(map.visible);
                camera.update();
 
                game.batch.setProjectionMatrix(camera.combined);
@@ -168,18 +171,28 @@ public class FirstScreen implements Screen {
 
                game.batch.begin();
                //draw potions
-               for(Potion currentPotion : map.potions) {
+              /* for(Potion currentPotion : map.potions) {
                    if(!currentPotion.isPickedUp()) {
                        game.batch.draw(currentPotion.itemImage, currentPotion.itemRectangle.x, currentPotion.itemRectangle.y, currentPotion.itemRectangle.width, currentPotion.itemRectangle.height);
+                   }
+               }
+               //draw potions*/
+               for(Item currentItem : map.items) {
+                   if(!currentItem.isPickedUp()) {
+                       game.batch.draw(currentItem.itemImage, currentItem.itemRectangle.x, currentItem.itemRectangle.y, currentItem.itemRectangle.width, currentItem.itemRectangle.height);
                    }
                }
                game.batch.draw(currentAnim.getKeyFrame(elapsed), cat.x, cat.y, cat.width, cat.height);
                game.batch.end();
 
                //check if potions are picked up
-               for(Potion currentPotion : map.potions) {
-                   if(cat.overlaps(currentPotion.itemRectangle)) {
-                       currentPotion.setPickedUp(true);
+               for(Item currentItem : map.items) {
+                   if(cat.overlaps(currentItem.itemRectangle)) {
+                       if (currentItem.getName().equals("Portal")) {
+                           game.level = new levelClass();
+                           game.setScreen(new FirstScreen(game));
+                       }
+                       currentItem.setPickedUp(true);
                        //add potion to player's inventory
                    }
                }
@@ -191,11 +204,12 @@ public class FirstScreen implements Screen {
                    map.isBlocked = map.mapLayer.getCell((int) (cat.x / 32), (int) ((cat.y + 16) / 32)).getTile().getProperties().containsKey("blocked");
                    cell = map.westExit.getCell((int) (cat.x / 32), (int) ((cat.y + 16) / 32));
                    if (cell != null) map.isExit = map.westExit.getCell((int) (cat.x / 32), (int) ((cat.y + 16) / 32)).getTile().getProperties().containsKey("west");
-                   if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && map.isExit) {
-                       map = new mapClass("Maps/level6.tmx", "MapTypePlaceholder", "east"/*, "east"*/);
+                   if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && map.isExit && map.west) {
+                       roomY--;
+                       map = new mapClass(game.level, roomX, roomY, game);
                        //set new exit and entrance coordinates
                        float[] entranceCoordinates = new float[2];
-                       entranceCoordinates = map.calculateEntranceCoordinates();
+                       entranceCoordinates = map.calculateEntranceCoordinates("east");
                        cat.x = entranceCoordinates[0];
                        cat.y = entranceCoordinates[1];
                    }
@@ -208,11 +222,11 @@ public class FirstScreen implements Screen {
                    map.isBlocked = map.mapLayer.getCell((int) ((cat.x + 32) / 32 + 1), (int) ((cat.y + 16) / 32)).getTile().getProperties().containsKey("blocked");
                    cell = map.eastExit.getCell((int) ((cat.x + 32) / 32 + 1), (int) ((cat.y + 16) / 32));
                    if (cell != null) map.isExit = map.eastExit.getCell((int) ((cat.x + 32) / 32 + 1), (int) ((cat.y + 16) / 32)).getTile().getProperties().containsKey("east");
-                   if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && map.isExit) {
-                       map = new mapClass("Maps/level6.tmx", "MapTypePlaceholder", "west"/*, "east"*/);
-                       //set new exit and entrance coordinates
+                   if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && map.isExit && map.east) {
+                       roomY++;
+                       map = new mapClass(game.level, roomX, roomY, game);                       //set new exit and entrance coordinates
                        float[] entranceCoordinates = new float[2];
-                       entranceCoordinates = map.calculateEntranceCoordinates();
+                       entranceCoordinates = map.calculateEntranceCoordinates("west");
                        cat.x = entranceCoordinates[0];
                        cat.y = entranceCoordinates[1];
                    }
@@ -225,11 +239,11 @@ public class FirstScreen implements Screen {
                    map.isBlocked = map.mapLayer.getCell((int) ((cat.x + 16) / 32), (int) ((cat.y + 16) / 32 + 1)).getTile().getProperties().containsKey("blocked");
                    cell = map.northExit.getCell((int) ((cat.x + 16) / 32), (int) ((cat.y + 16) / 32 + 1));
                    if (cell != null) map.isExit = map.northExit.getCell((int) ((cat.x + 16) / 32), (int) ((cat.y + 16) / 32 + 1)).getTile().getProperties().containsKey("north");
-                   if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && map.isExit) {
-                       map = new mapClass("Maps/level6.tmx", "MapTypePlaceholder", "south"/*, "east"*/);
-                       //set new exit and entrance coordinates
+                   if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && map.isExit && map.north) {
+                       roomX--;
+                       map = new mapClass(game.level, roomX, roomY, game);                       //set new exit and entrance coordinates
                        float[] entranceCoordinates = new float[2];
-                       entranceCoordinates = map.calculateEntranceCoordinates();
+                       entranceCoordinates = map.calculateEntranceCoordinates("south");
                        cat.x = entranceCoordinates[0];
                        cat.y = entranceCoordinates[1];
                    }
@@ -241,11 +255,11 @@ public class FirstScreen implements Screen {
                    map.isBlocked = map.mapLayer.getCell((int) ((cat.x + 16) / 32), (int) (cat.y / 32) - 1).getTile().getProperties().containsKey("blocked");
                    cell = map.southExit.getCell((int) ((cat.x + 16) / 32), (int) (cat.y / 32) - 1);
                    if (cell != null) map.isExit = map.southExit.getCell((int) ((cat.x + 16) / 32), (int) (cat.y / 32) - 1).getTile().getProperties().containsKey("south");
-                   if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && map.isExit) {
-                       map = new mapClass("Maps/level6.tmx", "MapTypePlaceholder", "north"/*, "east"*/);
-                       //set new exit and entrance coordinates
+                   if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && map.isExit && map.south) {
+                       roomX++;
+                       map = new mapClass(game.level, roomX, roomY, game);                       //set new exit and entrance coordinates
                        float[] entranceCoordinates = new float[2];
-                       entranceCoordinates = map.calculateEntranceCoordinates();
+                       entranceCoordinates = map.calculateEntranceCoordinates("north");
                        cat.x = entranceCoordinates[0];
                        cat.y = entranceCoordinates[1];
                    }

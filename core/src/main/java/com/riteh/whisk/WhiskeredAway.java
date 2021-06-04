@@ -27,7 +27,8 @@ public class WhiskeredAway extends Game {
     Music currentMusic;
     Sound selectSoundEffect;
     //Declare Map layout creator for game
-    MapLayoutCreator MapLayout;
+    //MapLayoutCreator MapLayout;
+    levelClass level;
 
     public void create() {
         font = new BitmapFont();
@@ -39,8 +40,8 @@ public class WhiskeredAway extends Game {
         selectSoundEffect = Gdx.audio.newSound((Gdx.files.internal("Audio/select_two.mp3")));
 
         //New instance of map layout creator and do RNG
-        MapLayout = new MapLayoutCreator();
-        MapLayout.layoutRNG();
+        //MapLayout = new MapLayoutCreator();
+        //MapLayout.layoutRNG();
 
         this.setScreen(new MainMenuScreen(this));
     }
