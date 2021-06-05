@@ -26,8 +26,6 @@ public class WhiskeredAway extends Game {
     BitmapFont font;
     Music currentMusic;
     Sound selectSoundEffect;
-    //Declare Map layout creator for game
-    //MapLayoutCreator MapLayout;
     levelClass level;
 
     public void create() {
@@ -35,15 +33,20 @@ public class WhiskeredAway extends Game {
         batch = new SpriteBatch();
         state = gameState.RUNNING;
 
-        currentMusic = Gdx.audio.newMusic(Gdx.files.internal("Audio/main-theme.ogg"));
-        currentMusic.setLooping(true);
+        setCurrentMusic("Audio/main-theme.ogg");
         selectSoundEffect = Gdx.audio.newSound((Gdx.files.internal("Audio/select_two.mp3")));
 
-        //New instance of map layout creator and do RNG
-        //MapLayout = new MapLayoutCreator();
-        //MapLayout.layoutRNG();
-
         this.setScreen(new MainMenuScreen(this));
+    }
+
+    public void setCurrentMusic(String newMusicPath) {
+        if(this.currentMusic != null) {
+            this.currentMusic.stop();
+        }
+        this.currentMusic = Gdx.audio.newMusic(Gdx.files.internal(newMusicPath));
+        this.currentMusic.setLooping(true);
+        this.currentMusic.setVolume(this.musicVolume);
+        this.currentMusic.play();
     }
 
     public float getMusicVolume() {
@@ -52,7 +55,7 @@ public class WhiskeredAway extends Game {
 
     public void setMusicVolume(float volume) {
         this.musicVolume = volume;
-        currentMusic.setVolume(this.musicVolume);
+        this.currentMusic.setVolume(this.musicVolume);
     }
 
     public void render() {

@@ -1,6 +1,7 @@
 package com.riteh.whisk;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
@@ -10,15 +11,16 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Slider;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import java.awt.Rectangle;
+import java.security.Key;
 
 public class MainMenuScreen implements Screen {
-
     final WhiskeredAway game;
     OrthographicCamera camera;
 
@@ -30,11 +32,10 @@ public class MainMenuScreen implements Screen {
     private Animation<TextureRegion> sleepingAnim;
 
     private Sound startSoundEffect;
+    private boolean gameStarted;
 
     public MainMenuScreen(final WhiskeredAway game) {
         this.game = game;
-        game.currentMusic = Gdx.audio.newMusic(Gdx.files.internal("Audio/main-theme.ogg"));
-        game.currentMusic.play();
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 800, 480);
 
@@ -48,63 +49,83 @@ public class MainMenuScreen implements Screen {
         sleepingAnim = GifDecoder.loadGIFAnimation(Animation.PlayMode.LOOP, Gdx.files.internal("Cat/cat_sleepMainMenuAnimation.gif").read());
         startSoundEffect = Gdx.audio.newSound(Gdx.files.internal(("Audio/select_one.mp3")));
 
+        gameStarted = false;
     }
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor( 0, 0, 0, 1 );
-        Gdx.gl.glClear( GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT );
-        elapsed += Gdx.graphics.getDeltaTime();
+        if(!gameStarted) {
+            Gdx.gl.glClearColor( 0, 0, 0, 1 );
+            Gdx.gl.glClear( GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT );
+            elapsed += Gdx.graphics.getDeltaTime();
 
-        camera.update();
+            camera.update();
 
-        game.batch.setProjectionMatrix(camera.combined);
-        game.batch.begin();
-        game.font.setColor(1, 1, 1, 1);
-        game.font.getData().setScale(2f, 2f);
-        game.font.draw(game.batch, "WHISKERED AWAY", 270, 330);
-        game.batch.draw(sleepingAnim.getKeyFrame(elapsed), cat.x,cat.y,cat.height,cat.width);
-        game.batch.end();
+            game.batch.setProjectionMatrix(camera.combined);
+            game.batch.begin();
+            game.font.setColor(1, 1, 1, 1);
+            game.font.getData().setScale(2f, 2f);
+            game.font.draw(game.batch, "WHISKERED AWAY", 270, 330);
+            game.batch.draw(sleepingAnim.getKeyFrame(elapsed), cat.x,cat.y,cat.height,cat.width);
+            game.batch.end();
 
-        Gdx.input.setInputProcessor(stage);
-        TextButton startGame = new TextButton("Start Game",skin, "default");
-        TextButton settings = new TextButton("Settings",skin, "default");
+            Gdx.input.setInputProcessor(stage);
+            TextButton startGame = new TextButton("Start Game",skin, "default");
+            TextButton settings = new TextButton("Settings",skin, "default");
 
-        startGame.setHeight(40);
-        startGame.setWidth(100);
-        startGame.getLabel().setFontScaleX(1.2f);
-        startGame.getLabel().setFontScaleY(1.2f);
+            startGame.setHeight(40);
+            startGame.setWidth(100);
+            startGame.getLabel().setFontScaleX(1.2f);
+            startGame.getLabel().setFontScaleY(1.2f);
 
-        settings.setHeight(40);
-        settings.setWidth(100);
-        settings.getLabel().setFontScaleX(1.2f);
-        settings.getLabel().setFontScaleY(1.2f);
+            settings.setHeight(40);
+            settings.setWidth(100);
+            settings.getLabel().setFontScaleX(1.2f);
+            settings.getLabel().setFontScaleY(1.2f);
 
-        startGame.setPosition(camera.viewportWidth/2 - startGame.getWidth()/2, camera.viewportHeight/2  - startGame.getHeight());
-        settings.setPosition(camera.viewportWidth/2 - startGame.getWidth()/2,camera.viewportHeight/2 - 50 - settings.getHeight());
+            startGame.setPosition(camera.viewportWidth/2 - startGame.getWidth()/2, camera.viewportHeight/2  - startGame.getHeight());
+            settings.setPosition(camera.viewportWidth/2 - startGame.getWidth()/2,camera.viewportHeight/2 - 50 - settings.getHeight());
 
-        startGame.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                game.level = new levelClass();
-                startSoundEffect.play(0.1f);
-                stage.dispose();
+            startGame.addListener(new ChangeListener() {
+                @Override
+                public void changed(ChangeEvent event, Actor actor) {
+                    game.level = new levelClass();
+                    startSoundEffect.play(0.1f);
+                    stage.dispose();
+                    gameStarted = true;
+                }
+            });
+
+            settings.addListener(new ChangeListener() {
+                @Override
+                public void changed(ChangeEvent event, Actor actor) {
+                    game.selectSoundEffect.play(0.6f);
+                    game.setScreen((new OptionScreen(game)));
+                }
+            });
+
+            stage.addActor(startGame);
+            stage.addActor(settings);
+            stage.act();
+            stage.draw();
+
+        } else {
+            Gdx.gl.glClearColor( 0, 0, 0, 1 );
+            Gdx.gl.glClear( GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT );
+
+            game.batch.setProjectionMatrix(camera.combined);
+            game.batch.begin();
+            game.font.setColor(1, 1, 1, 1);
+            game.font.draw(game.batch, "One day, Mr. Whiskers was on his evening walk.\nSuddenly, he heard squeaking so he turned around." +
+                    "\nSurely enough there was a mouse scurrying around.\nNot being one to turn down a challenge,\n" +
+                    "Mr. Whiskers pounces and so begins a heated pursuit.\nMr. Whiskers chases the mouse into\n" +
+                    "a dark storm drain complex.\n\nHe loses sight of the mouse and becomes lost...\n\n(Press Enter to continue)", 50, 450);
+            game.batch.end();
+
+            if(Gdx.input.isKeyPressed(Input.Keys.ENTER)) {
                 game.setScreen(new FirstScreen(game));
             }
-        });
-
-        settings.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                game.selectSoundEffect.play(0.6f);
-                game.setScreen((new OptionScreen(game)));
-            }
-        });
-
-        stage.addActor(startGame);
-        stage.addActor(settings);
-        stage.act();
-        stage.draw();
+        }
     }
 
     @Override
