@@ -17,30 +17,21 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
-/** First screen of the application. Displayed after the application is created. */
+/** First screen of the appliplayerion. Displayed after the appliplayerion is created. */
 public class FirstScreen implements Screen {
 
     final WhiskeredAway game;
 
     OrthographicCamera camera;
 
-    Animation<TextureRegion> animLeft;
-    Animation<TextureRegion> animRight;
-    Animation<TextureRegion> animFront;
-    Animation<TextureRegion> animBack;
-    Animation<TextureRegion> animIdleLeft;
-    Animation<TextureRegion> animIdleRight;
-    Animation<TextureRegion> currentAnim;
-
-    int faceDir;
-
     float elapsed;
 
     float keyPressedTime;
     float keyDelta;
 
-    Rectangle cat;
+    //Rectangle player;
     Rectangle exit;
+    Player player;
 
     Stage stage = new Stage(new ScreenViewport());
     Skin skin = new Skin(Gdx.files.internal("ButtonSkin/skin.json"));
@@ -51,11 +42,13 @@ public class FirstScreen implements Screen {
 
     public FirstScreen(final WhiskeredAway game) {
         this.game = game;
-
-        cat = new Rectangle();
+        game.currentMusic.stop();
+        game.currentMusic = Gdx.audio.newMusic(Gdx.files.internal("Audio/dungeon1.ogg"));
+        game.currentMusic.play();
+        //player = new Rectangle();
         exit = new Rectangle();
 
-        //create current level and spawn potions, set cat spawn coordinates and exit coordinates
+        //create current level and spawn potions, set player spawn coordinates and exit coordinates
         map = new mapClass(game.level, 7, 7, game);
         roomX = 7;
         roomY = 7;
@@ -63,31 +56,28 @@ public class FirstScreen implements Screen {
         //set entrance and exit coordinates
         float[] entranceCoordinates = map.calculateEntranceCoordinates("north");
         //entranceCoordinates = map.calculateEntranceCoordinates();
-        cat.x = entranceCoordinates[0];
-        cat.y = entranceCoordinates[1];
 
         /*float[] exitCoordinates = new float[2];
         exitCoordinates = map.calculateExitCoordinates();
         exit.x = exitCoordinates[0];
         exit.y = exitCoordinates[1];*/
 
-        animLeft = GifDecoder.loadGIFAnimation(Animation.PlayMode.LOOP, Gdx.files.internal("Cat/Cat_walkLeft.gif").read());
-        animRight = GifDecoder.loadGIFAnimation(Animation.PlayMode.LOOP, Gdx.files.internal("Cat/Cat_walkRight.gif").read());
-        animFront = GifDecoder.loadGIFAnimation(Animation.PlayMode.LOOP, Gdx.files.internal("Cat/Cat_walkBehind.gif").read());
-        animBack = GifDecoder.loadGIFAnimation(Animation.PlayMode.LOOP, Gdx.files.internal("Cat/Cat_walkFront.gif").read());
-        animIdleLeft = GifDecoder.loadGIFAnimation(Animation.PlayMode.LOOP, Gdx.files.internal("Cat/Cat_idleTailLeft.gif").read());
-        animIdleRight = GifDecoder.loadGIFAnimation(Animation.PlayMode.LOOP, Gdx.files.internal("Cat/Cat_idleTailRight.gif").read());
+        player = new Player(entranceCoordinates[0], entranceCoordinates[1], 64, 100, 0, 0);
 
-        currentAnim = animIdleLeft;
-        faceDir = 1;
+        player.animLeft = GifDecoder.loadGIFAnimation(Animation.PlayMode.LOOP, Gdx.files.internal("Cat/Cat_walkLeft.gif").read());
+        player.animRight = GifDecoder.loadGIFAnimation(Animation.PlayMode.LOOP, Gdx.files.internal("Cat/Cat_walkRight.gif").read());
+        player.animFront = GifDecoder.loadGIFAnimation(Animation.PlayMode.LOOP, Gdx.files.internal("Cat/Cat_walkBehind.gif").read());
+        player.animBack = GifDecoder.loadGIFAnimation(Animation.PlayMode.LOOP, Gdx.files.internal("Cat/Cat_walkFront.gif").read());
+        player.animIdleLeft = GifDecoder.loadGIFAnimation(Animation.PlayMode.LOOP, Gdx.files.internal("Cat/Cat_idleTailLeft.gif").read());
+        player.animIdleRight = GifDecoder.loadGIFAnimation(Animation.PlayMode.LOOP, Gdx.files.internal("Cat/Cat_idleTailRight.gif").read());
+
+        player.currentAnim = player.animIdleLeft;
+        player.currentDir = "left";
         keyPressedTime = 0f;
         keyDelta = 0.25f;
 
         exit.width = 16;
         exit.height = 16;
-
-        cat.width = 64;
-        cat.height = 64;
     }
 
     @Override
@@ -179,15 +169,15 @@ public class FirstScreen implements Screen {
                //draw potions*/
                for(Item currentItem : map.items) {
                    if(!currentItem.isPickedUp()) {
-                       game.batch.draw(currentItem.itemImage, currentItem.itemRectangle.x, currentItem.itemRectangle.y, currentItem.itemRectangle.width, currentItem.itemRectangle.height);
+                       game.batch.draw(currentItem.itemAnim.getKeyFrame(elapsed), currentItem.itemRectangle.x, currentItem.itemRectangle.y, currentItem.itemRectangle.width, currentItem.itemRectangle.height);
                    }
                }
-               game.batch.draw(currentAnim.getKeyFrame(elapsed), cat.x, cat.y, cat.width, cat.height);
+               game.batch.draw(player.currentAnim.getKeyFrame(elapsed), player.x, player.y, player.width, player.height);
                game.batch.end();
 
                //check if potions are picked up
                for(Item currentItem : map.items) {
-                   if(cat.contains(currentItem.itemRectangle)) {
+                   if(player.contains(currentItem.itemRectangle)) {
                        if (currentItem.getName().equals("Portal")) {
                            game.level = new levelClass();
                            game.setScreen(new FirstScreen(game));
@@ -201,95 +191,93 @@ public class FirstScreen implements Screen {
 
                if (Gdx.input.isKeyPressed(Input.Keys.A)) {
                    keyPressedTime += Gdx.graphics.getDeltaTime();
-                   map.isBlocked = map.mapLayer.getCell((int) (cat.x / 32), (int) ((cat.y + 16) / 32)).getTile().getProperties().containsKey("blocked");
-                   cell = map.westExit.getCell((int) (cat.x / 32), (int) ((cat.y + 16) / 32));
-                   if (cell != null) map.isExit = map.westExit.getCell((int) (cat.x / 32), (int) ((cat.y + 16) / 32)).getTile().getProperties().containsKey("west");
+                   map.isBlocked = map.mapLayer.getCell((int) (player.x / 32), (int) ((player.y + 16) / 32)).getTile().getProperties().containsKey("blocked");
+                   cell = map.westExit.getCell((int) (player.x / 32), (int) ((player.y + 16) / 32));
+                   if (cell != null) map.isExit = map.westExit.getCell((int) (player.x / 32), (int) ((player.y + 16) / 32)).getTile().getProperties().containsKey("west");
                    if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && map.isExit && map.west) {
                        roomY--;
                        map = new mapClass(game.level, roomX, roomY, game);
                        //set new exit and entrance coordinates
                        float[] entranceCoordinates = new float[2];
                        entranceCoordinates = map.calculateEntranceCoordinates("east");
-                       cat.x = entranceCoordinates[0];
-                       cat.y = entranceCoordinates[1];
+                       player.x = entranceCoordinates[0];
+                       player.y = entranceCoordinates[1];
                    }
-                   if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && !map.isBlocked) cat.x -= 32;
-                       currentAnim = animLeft;
-                       faceDir = 1;
+                   if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && !map.isBlocked) {
+                       player.move("left");
+                       player.currentAnim = player.animLeft;
+                       player.currentDir = "left";
+                   }
                    map.isExit = false;
                }
                if (Gdx.input.isKeyPressed(Input.Keys.D)) {
                    keyPressedTime += Gdx.graphics.getDeltaTime();
-                   map.isBlocked = map.mapLayer.getCell((int) ((cat.x + 32) / 32 + 1), (int) ((cat.y + 16) / 32)).getTile().getProperties().containsKey("blocked");
-                   cell = map.eastExit.getCell((int) ((cat.x + 32) / 32 + 1), (int) ((cat.y + 16) / 32));
-                   if (cell != null) map.isExit = map.eastExit.getCell((int) ((cat.x + 32) / 32 + 1), (int) ((cat.y + 16) / 32)).getTile().getProperties().containsKey("east");
+                   map.isBlocked = map.mapLayer.getCell((int) ((player.x + 32) / 32 + 1), (int) ((player.y + 16) / 32)).getTile().getProperties().containsKey("blocked");
+                   cell = map.eastExit.getCell((int) ((player.x + 32) / 32 + 1), (int) ((player.y + 16) / 32));
+                   if (cell != null) map.isExit = map.eastExit.getCell((int) ((player.x + 32) / 32 + 1), (int) ((player.y + 16) / 32)).getTile().getProperties().containsKey("east");
                    if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && map.isExit && map.east) {
                        roomY++;
                        map = new mapClass(game.level, roomX, roomY, game);                       //set new exit and entrance coordinates
                        float[] entranceCoordinates = new float[2];
                        entranceCoordinates = map.calculateEntranceCoordinates("west");
-                       cat.x = entranceCoordinates[0];
-                       cat.y = entranceCoordinates[1];
+                       player.x = entranceCoordinates[0];
+                       player.y = entranceCoordinates[1];
                    }
-                   if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && !map.isBlocked) cat.x += 32;
-                       currentAnim = animRight;
-                       faceDir = 2;
-                       map.isExit = false;
+                   if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && !map.isBlocked) {
+                       player.move("right");
+                       player.currentAnim = player.animRight;
+                       player.currentDir = "right";
+                   }
+                   map.isExit = false;
                }
                if (Gdx.input.isKeyPressed(Input.Keys.W)) {
                    keyPressedTime += Gdx.graphics.getDeltaTime();
-                   map.isBlocked = map.mapLayer.getCell((int) ((cat.x + 16) / 32), (int) ((cat.y + 16) / 32 + 1)).getTile().getProperties().containsKey("blocked");
-                   cell = map.northExit.getCell((int) ((cat.x + 16) / 32), (int) ((cat.y + 16) / 32 + 1));
-                   if (cell != null) map.isExit = map.northExit.getCell((int) ((cat.x + 16) / 32), (int) ((cat.y + 16) / 32 + 1)).getTile().getProperties().containsKey("north");
+                   map.isBlocked = map.mapLayer.getCell((int) ((player.x + 16) / 32), (int) ((player.y + 16) / 32 + 1)).getTile().getProperties().containsKey("blocked");
+                   cell = map.northExit.getCell((int) ((player.x + 16) / 32), (int) ((player.y + 16) / 32 + 1));
+                   if (cell != null) map.isExit = map.northExit.getCell((int) ((player.x + 16) / 32), (int) ((player.y + 16) / 32 + 1)).getTile().getProperties().containsKey("north");
                    if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && map.isExit && map.north) {
                        roomX--;
                        map = new mapClass(game.level, roomX, roomY, game);                       //set new exit and entrance coordinates
                        float[] entranceCoordinates = new float[2];
                        entranceCoordinates = map.calculateEntranceCoordinates("south");
-                       cat.x = entranceCoordinates[0];
-                       cat.y = entranceCoordinates[1];
+                       player.x = entranceCoordinates[0];
+                       player.y = entranceCoordinates[1];
                    }
-                   if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && !map.isBlocked) cat.y += 32;
-                   currentAnim = animFront;
+                   if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && !map.isBlocked) {
+                       player.move("up");
+                       player.currentAnim = player.animFront;
+                   }
                    map.isExit = false;
                }
                if (Gdx.input.isKeyPressed(Input.Keys.S)) {
                    keyPressedTime += Gdx.graphics.getDeltaTime();
-                   map.isBlocked = map.mapLayer.getCell((int) ((cat.x + 16) / 32), (int) (cat.y / 32) - 1).getTile().getProperties().containsKey("blocked");
-                   cell = map.southExit.getCell((int) ((cat.x + 16) / 32), (int) (cat.y / 32) - 1);
-                   if (cell != null) map.isExit = map.southExit.getCell((int) ((cat.x + 16) / 32), (int) (cat.y / 32) - 1).getTile().getProperties().containsKey("south");
+                   map.isBlocked = map.mapLayer.getCell((int) ((player.x + 16) / 32), (int) (player.y / 32) - 1).getTile().getProperties().containsKey("blocked");
+                   cell = map.southExit.getCell((int) ((player.x + 16) / 32), (int) (player.y / 32) - 1);
+                   if (cell != null) map.isExit = map.southExit.getCell((int) ((player.x + 16) / 32), (int) (player.y / 32) - 1).getTile().getProperties().containsKey("south");
                    if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && map.isExit && map.south) {
                        roomX++;
                        map = new mapClass(game.level, roomX, roomY, game);                       //set new exit and entrance coordinates
                        float[] entranceCoordinates = new float[2];
                        entranceCoordinates = map.calculateEntranceCoordinates("north");
-                       cat.x = entranceCoordinates[0];
-                       cat.y = entranceCoordinates[1];
+                       player.x = entranceCoordinates[0];
+                       player.y = entranceCoordinates[1];
                    }
-                   if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && !map.isBlocked) cat.y -= 32;
-                   currentAnim = animBack;
+                   if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && !map.isBlocked) {
+                       player.move("down");
+                       player.currentAnim = player.animBack;
+                   }
                    map.isExit = false;
                }
                if (!(Gdx.input.isKeyPressed(Input.Keys.W)) && !(Gdx.input.isKeyPressed(Input.Keys.A)) && !(Gdx.input.isKeyPressed(Input.Keys.S)) && !(Gdx.input.isKeyPressed(Input.Keys.D))) {
                    keyPressedTime = 0f;
-                   if (faceDir == 1) currentAnim = animIdleLeft;
-                   else currentAnim = animIdleRight;
+                   if (player.currentDir == "left") player.currentAnim = player.animIdleLeft;
+                   else player.currentAnim = player.animIdleRight;
                }
                //Pause game
                if(Gdx.input.isKeyJustPressed(Input.Keys.P)) {
                     game.state = gameState.PAUSED;
                }
-                /*
-                if (cat.x < 0 + 80) cat.x = 0 + 80;
-                if (cat.x > 800 - 144) cat.x = 800 - 144;
-                if (cat.y < 0 + 32) cat.y = 0 + 32;
-                if (cat.y > 480 - 64) cat.y = 480 - 64;
-                */
-
-               if (cat.x < 0 + 16) cat.x = 0 + 16;
-               if (cat.x > 800 - 48) cat.x = 800 - 48;
-               if (cat.y < 0 + 32) cat.y = 0 + 32;
-               if (cat.y > 480 - 64) cat.y = 480 - 64;
+                
                break;
        }
 
@@ -306,12 +294,12 @@ public class FirstScreen implements Screen {
 
     @Override
     public void pause() {
-        // Invoked when your application is paused.
+        // Invoked when your appliplayerion is paused.
     }
 
     @Override
     public void resume() {
-        // Invoked when your application is resumed after pause.
+        // Invoked when your appliplayerion is resumed after pause.
 
     }
 

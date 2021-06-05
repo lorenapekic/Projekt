@@ -35,7 +35,7 @@ public class WhiskeredAway extends Game {
         batch = new SpriteBatch();
         state = gameState.RUNNING;
 
-        currentMusic = Gdx.audio.newMusic(Gdx.files.internal("Audio/main-theme.mp3"));
+        currentMusic = Gdx.audio.newMusic(Gdx.files.internal("Audio/main-theme.ogg"));
         currentMusic.setLooping(true);
         selectSoundEffect = Gdx.audio.newSound((Gdx.files.internal("Audio/select_two.mp3")));
 
