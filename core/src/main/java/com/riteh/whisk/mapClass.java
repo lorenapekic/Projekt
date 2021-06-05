@@ -1,6 +1,5 @@
 package com.riteh.whisk;
 
-import com.badlogic.gdx.maps.Map;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -59,7 +58,7 @@ public class mapClass {
         //this.potions = new Array<Potion>();
         //spawnPotions();
         this.items = new Array<Item>();
-        if (this.name != "Maps/levelS.tmx") spawnItems();
+        if (!this.name.equals("Maps/levelS.tmx")) spawnItems();
     }
 
     public void calculateVisibleLayers() {

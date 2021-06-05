@@ -157,7 +157,7 @@ public class FirstScreen implements Screen {
                 camera.update();
 
                 game.batch.setProjectionMatrix(camera.combined);
-                
+
                 game.batch.begin();
                 //draw potions
               /* for(Potion currentPotion : map.potions) {
@@ -175,8 +175,8 @@ public class FirstScreen implements Screen {
                
                 game.batch.draw(player.currentAnim.getKeyFrame(elapsed), player.x, player.y, player.width, player.height);
                 game.font.setColor(1, 1, 1, 1);
-                game.font.draw(game.batch, "potion: "+player.updatePotion(), 650, 450);
-                game.font.draw(game.batch, "gold: " + player.updateGold(), 650, 420);
+                game.font.draw(game.batch, "potion: "+player.updatePotion(), 660, 450);
+                game.font.draw(game.batch, "gold: " + player.updateGold(), 660, 420);
                 game.batch.end();
 
 
