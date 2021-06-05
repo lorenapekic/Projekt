@@ -25,7 +25,6 @@ public class mapClass {
     boolean isBlocked;
     boolean isExit;
     boolean north, east, south, west;
-    Array<Potion> potions; //array that holds potions for the current level
     Array<Item> items;
     int x, y;
     int visible[];
@@ -56,8 +55,6 @@ public class mapClass {
         this.eastExit = (TiledMapTileLayer) currentLevel.getLayers().get(4);
         this.renderer = new OrthogonalTiledMapRenderer(currentLevel, 2f);
 
-        //this.potions = new Array<Potion>();
-        //spawnPotions();
         this.items = new Array<Item>();
         if (this.name != "Maps/levelS.tmx") spawnItems();
     }
@@ -78,15 +75,7 @@ public class mapClass {
         return;
     }
 
-    //not sure if we even need this
-    /*public void changeMap(String mapName) {
-        Map newMap = new TmxMapLoader().load(mapName);
-        this.renderer.getMap().dispose();
-        this.renderer.setMap((TiledMap) newMap);
-        this.mapLayer = (TiledMapTileLayer) newMap.getLayers().get(0);
-    }*/
-
-    //creates an array of potions for the current map
+    //creates an array of items for the current map
     public void spawnItems() {
         ThreadLocalRandom random = ThreadLocalRandom.current();
         int chance;
@@ -129,7 +118,7 @@ public class mapClass {
         }
     }
 
-    //get entrance coordinates
+    //get entrance/spawn coordinates
     public float[] calculateEntranceCoordinates(String entrance) {
         float[] coordinates = new float[2];
 

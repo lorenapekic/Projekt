@@ -42,9 +42,7 @@ public class FirstScreen implements Screen {
 
     public FirstScreen(final WhiskeredAway game) {
         this.game = game;
-        game.currentMusic.stop();
-        game.currentMusic = Gdx.audio.newMusic(Gdx.files.internal("Audio/dungeon1.ogg"));
-        game.currentMusic.play();
+        game.setCurrentMusic("Audio/dungeon1.ogg");
         //player = new Rectangle();
         exit = new Rectangle();
 
@@ -136,6 +134,7 @@ public class FirstScreen implements Screen {
                         game.selectSoundEffect.play(0.6f);
                         game.state = gameState.RUNNING;
                         map = new mapClass(game.level, 7, 7, game);
+                        game.setCurrentMusic("Audio/main-theme.ogg");
                         game.setScreen(new MainMenuScreen(game));
                     }
                });
