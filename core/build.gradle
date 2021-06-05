@@ -11,4 +11,5 @@ dependencies {
   api "com.github.tommyettinger:regexodus:$regExodusVersion"
   api "com.squidpony:squidlib:$squidLibVersion"
   api "com.github.tommyettinger:anim8-gdx:$anim8Version"
+  compile "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
 }

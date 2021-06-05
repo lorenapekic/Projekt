@@ -6,10 +6,9 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -39,6 +38,7 @@ public class FirstScreen implements Screen {
     TiledMapTileLayer.Cell cell;
     int roomX, roomY;
     int[] layers;
+
 
     public FirstScreen(final WhiskeredAway game) {
         this.game = game;
@@ -88,49 +88,49 @@ public class FirstScreen implements Screen {
 
     @Override
     public void render(float delta) {
-       switch (game.state) {
-           case PAUSED:
-               game.currentMusic.pause();
-               Gdx.gl.glClearColor( 0, 0, 0, 1 );
-               Gdx.gl.glClear( GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT );
+        switch (game.state) {
+            case PAUSED:
+                game.currentMusic.pause();
+                Gdx.gl.glClearColor( 0, 0, 0, 1 );
+                Gdx.gl.glClear( GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT );
 
-               camera.update();
+                camera.update();
 
-               game.batch.setProjectionMatrix(camera.combined);
-               game.batch.begin();
-               game.font.setColor(1, 1, 1, 1);
-               game.font.getData().setScale(2f, 2f);
-               game.font.draw(game.batch, "WHISKERED AWAY", 270, 400);
-               game.font.draw(game.batch, "The game is paused", 270, 300);
-               game.batch.end();
+                game.batch.setProjectionMatrix(camera.combined);
+                game.batch.begin();
+                game.font.setColor(1, 1, 1, 1);
+                game.font.getData().setScale(2f, 2f);
+                game.font.draw(game.batch, "WHISKERED AWAY", 270, 400);
+                game.font.draw(game.batch, "The game is paused", 270, 300);
+                game.batch.end();
 
-               Gdx.input.setInputProcessor(stage);
-               TextButton resume = new TextButton("Resume", skin);
-               TextButton quit = new TextButton("Quit", skin);
+                Gdx.input.setInputProcessor(stage);
+                TextButton resume = new TextButton("Resume", skin);
+                TextButton quit = new TextButton("Quit", skin);
 
-               resume.setHeight(40);
-               resume.setWidth(100);
-               resume.getLabel().setFontScaleX(1.2f);
-               resume.getLabel().setFontScaleY(1.2f);
+                resume.setHeight(40);
+                resume.setWidth(100);
+                resume.getLabel().setFontScaleX(1.2f);
+                resume.getLabel().setFontScaleY(1.2f);
 
-               quit.setHeight(40);
-               quit.setWidth(100);
-               quit.getLabel().setFontScaleX(1.2f);
-               quit.getLabel().setFontScaleY(1.2f);
+                quit.setHeight(40);
+                quit.setWidth(100);
+                quit.getLabel().setFontScaleX(1.2f);
+                quit.getLabel().setFontScaleY(1.2f);
 
-               resume.setPosition(camera.viewportWidth/2 - resume.getWidth()/2, camera.viewportHeight/2 - resume.getHeight());
-               quit.setPosition(camera.viewportWidth/2 - resume.getWidth()/2, camera.viewportHeight/2 - 50 - quit.getHeight());
+                resume.setPosition(camera.viewportWidth/2 - resume.getWidth()/2, camera.viewportHeight/2 - resume.getHeight());
+                quit.setPosition(camera.viewportWidth/2 - resume.getWidth()/2, camera.viewportHeight/2 - 50 - quit.getHeight());
 
-               resume.addListener(new ChangeListener() {
+                resume.addListener(new ChangeListener() {
                     @Override
                     public void changed(ChangeEvent event, Actor actor) {
                         game.selectSoundEffect.play(0.6f);
                         game.state = gameState.RUNNING;
                         stage.clear();
                     }
-               });
+                });
 
-               quit.addListener(new ChangeListener() {
+                quit.addListener(new ChangeListener() {
                     @Override
                     public void changed(ChangeEvent event, Actor actor) {
                         game.selectSoundEffect.play(0.6f);
@@ -138,148 +138,164 @@ public class FirstScreen implements Screen {
                         map = new mapClass(game.level, 7, 7, game);
                         game.setScreen(new MainMenuScreen(game));
                     }
-               });
+                });
 
-               stage.addActor(resume);
-               stage.addActor(quit);
-               stage.act();
-               stage.draw();
-               break;
+                stage.addActor(resume);
+                stage.addActor(quit);
+                stage.act();
+                stage.draw();
+                break;
 
-           case RUNNING:
-               game.currentMusic.play();
-               elapsed += Gdx.graphics.getDeltaTime();
-               Gdx.gl.glClearColor(0,0,0,1);
-               Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+            case RUNNING:
+                game.currentMusic.play();
+                elapsed += Gdx.graphics.getDeltaTime();
+                Gdx.gl.glClearColor(0,0,0,1);
+                Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-               map.renderer.setView(camera);
-               map.renderer.render(map.visible);
-               camera.update();
+                map.renderer.setView(camera);
+                map.renderer.render(map.visible);
+                camera.update();
 
-               game.batch.setProjectionMatrix(camera.combined);
-
-
-               game.batch.begin();
-               //draw potions
+                game.batch.setProjectionMatrix(camera.combined);
+                
+                game.batch.begin();
+                //draw potions
               /* for(Potion currentPotion : map.potions) {
                    if(!currentPotion.isPickedUp()) {
                        game.batch.draw(currentPotion.itemImage, currentPotion.itemRectangle.x, currentPotion.itemRectangle.y, currentPotion.itemRectangle.width, currentPotion.itemRectangle.height);
                    }
                }
                //draw potions*/
-               for(Item currentItem : map.items) {
-                   if(!currentItem.isPickedUp()) {
-                       game.batch.draw(currentItem.itemAnim.getKeyFrame(elapsed), currentItem.itemRectangle.x, currentItem.itemRectangle.y, currentItem.itemRectangle.width, currentItem.itemRectangle.height);
-                   }
-               }
-               game.batch.draw(player.currentAnim.getKeyFrame(elapsed), player.x, player.y, player.width, player.height);
-               game.batch.end();
+                for(Item currentItem : map.items) {
+                    if(!currentItem.isPickedUp()) {
+                        game.batch.draw(currentItem.itemAnim.getKeyFrame(elapsed), currentItem.itemRectangle.x, currentItem.itemRectangle.y, currentItem.itemRectangle.width, currentItem.itemRectangle.height);
+                    }
+                }
 
-               //check if potions are picked up
-               for(Item currentItem : map.items) {
-                   if(player.contains(currentItem.itemRectangle)) {
-                       if (currentItem.getName().equals("Portal")) {
-                           game.level = new levelClass();
-                           game.setScreen(new FirstScreen(game));
-                       }
-                       currentItem.setPickedUp(true);
-                       //add potion to player's inventory
-                   }
-               }
+               
+                game.batch.draw(player.currentAnim.getKeyFrame(elapsed), player.x, player.y, player.width, player.height);
+                game.font.setColor(1, 1, 1, 1);
+                game.font.draw(game.batch, "potion: "+player.updatePotion(), 650, 450);
+                game.font.draw(game.batch, "gold: " + player.updateGold(), 650, 420);
+                game.batch.end();
 
-               //create new mapCLass() to change the map, based on mapconstructorlist in maplayoutcreator
 
-               if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-                   keyPressedTime += Gdx.graphics.getDeltaTime();
-                   map.isBlocked = map.mapLayer.getCell((int) (player.x / 32), (int) ((player.y + 16) / 32)).getTile().getProperties().containsKey("blocked");
-                   cell = map.westExit.getCell((int) (player.x / 32), (int) ((player.y + 16) / 32));
-                   if (cell != null) map.isExit = map.westExit.getCell((int) (player.x / 32), (int) ((player.y + 16) / 32)).getTile().getProperties().containsKey("west");
-                   if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && map.isExit && map.west) {
-                       roomY--;
-                       map = new mapClass(game.level, roomX, roomY, game);
-                       //set new exit and entrance coordinates
-                       float[] entranceCoordinates = new float[2];
-                       entranceCoordinates = map.calculateEntranceCoordinates("east");
-                       player.x = entranceCoordinates[0];
-                       player.y = entranceCoordinates[1];
-                   }
-                   if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && !map.isBlocked) {
-                       player.move("left");
-                       player.currentAnim = player.animLeft;
-                       player.currentDir = "left";
-                   }
-                   map.isExit = false;
-               }
-               if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-                   keyPressedTime += Gdx.graphics.getDeltaTime();
-                   map.isBlocked = map.mapLayer.getCell((int) ((player.x + 32) / 32 + 1), (int) ((player.y + 16) / 32)).getTile().getProperties().containsKey("blocked");
-                   cell = map.eastExit.getCell((int) ((player.x + 32) / 32 + 1), (int) ((player.y + 16) / 32));
-                   if (cell != null) map.isExit = map.eastExit.getCell((int) ((player.x + 32) / 32 + 1), (int) ((player.y + 16) / 32)).getTile().getProperties().containsKey("east");
-                   if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && map.isExit && map.east) {
-                       roomY++;
-                       map = new mapClass(game.level, roomX, roomY, game);                       //set new exit and entrance coordinates
-                       float[] entranceCoordinates = new float[2];
-                       entranceCoordinates = map.calculateEntranceCoordinates("west");
-                       player.x = entranceCoordinates[0];
-                       player.y = entranceCoordinates[1];
-                   }
-                   if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && !map.isBlocked) {
-                       player.move("right");
-                       player.currentAnim = player.animRight;
-                       player.currentDir = "right";
-                   }
-                   map.isExit = false;
-               }
-               if (Gdx.input.isKeyPressed(Input.Keys.W)) {
-                   keyPressedTime += Gdx.graphics.getDeltaTime();
-                   map.isBlocked = map.mapLayer.getCell((int) ((player.x + 16) / 32), (int) ((player.y + 16) / 32 + 1)).getTile().getProperties().containsKey("blocked");
-                   cell = map.northExit.getCell((int) ((player.x + 16) / 32), (int) ((player.y + 16) / 32 + 1));
-                   if (cell != null) map.isExit = map.northExit.getCell((int) ((player.x + 16) / 32), (int) ((player.y + 16) / 32 + 1)).getTile().getProperties().containsKey("north");
-                   if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && map.isExit && map.north) {
-                       roomX--;
-                       map = new mapClass(game.level, roomX, roomY, game);                       //set new exit and entrance coordinates
-                       float[] entranceCoordinates = new float[2];
-                       entranceCoordinates = map.calculateEntranceCoordinates("south");
-                       player.x = entranceCoordinates[0];
-                       player.y = entranceCoordinates[1];
-                   }
-                   if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && !map.isBlocked) {
-                       player.move("up");
-                       player.currentAnim = player.animFront;
-                   }
-                   map.isExit = false;
-               }
-               if (Gdx.input.isKeyPressed(Input.Keys.S)) {
-                   keyPressedTime += Gdx.graphics.getDeltaTime();
-                   map.isBlocked = map.mapLayer.getCell((int) ((player.x + 16) / 32), (int) (player.y / 32) - 1).getTile().getProperties().containsKey("blocked");
-                   cell = map.southExit.getCell((int) ((player.x + 16) / 32), (int) (player.y / 32) - 1);
-                   if (cell != null) map.isExit = map.southExit.getCell((int) ((player.x + 16) / 32), (int) (player.y / 32) - 1).getTile().getProperties().containsKey("south");
-                   if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && map.isExit && map.south) {
-                       roomX++;
-                       map = new mapClass(game.level, roomX, roomY, game);                       //set new exit and entrance coordinates
-                       float[] entranceCoordinates = new float[2];
-                       entranceCoordinates = map.calculateEntranceCoordinates("north");
-                       player.x = entranceCoordinates[0];
-                       player.y = entranceCoordinates[1];
-                   }
-                   if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && !map.isBlocked) {
-                       player.move("down");
-                       player.currentAnim = player.animBack;
-                   }
-                   map.isExit = false;
-               }
-               if (!(Gdx.input.isKeyPressed(Input.Keys.W)) && !(Gdx.input.isKeyPressed(Input.Keys.A)) && !(Gdx.input.isKeyPressed(Input.Keys.S)) && !(Gdx.input.isKeyPressed(Input.Keys.D))) {
-                   keyPressedTime = 0f;
-                   if (player.currentDir == "left") player.currentAnim = player.animIdleLeft;
-                   else player.currentAnim = player.animIdleRight;
-               }
-               //Pause game
-               if(Gdx.input.isKeyJustPressed(Input.Keys.P)) {
+                //check if potions are picked up
+                for(Item currentItem : map.items) {
+                    if(player.contains(currentItem.itemRectangle) && !currentItem.isPickedUp()) {
+                        if (currentItem.getName().equals("Portal")) {
+                            game.level = new levelClass();
+                            game.setScreen(new FirstScreen(game));
+                        }
+                        currentItem.setPickedUp(true);
+                        //add potion to player's inventory
+                        if(currentItem.getName().equals( "Small health potion")){
+                            player.addPotion();
+                        }else if(currentItem.getName().equals("Coin")){
+                            player.addGold();
+                        }
+                    }
+                }
+
+                //create new mapCLass() to change the map, based on mapconstructorlist in maplayoutcreator
+
+                if (Gdx.input.isKeyPressed(Input.Keys.A)) {
+                    keyPressedTime += Gdx.graphics.getDeltaTime();
+                    map.isBlocked = map.mapLayer.getCell((int) (player.x / 32), (int) ((player.y + 16) / 32)).getTile().getProperties().containsKey("blocked");
+                    cell = map.westExit.getCell((int) (player.x / 32), (int) ((player.y + 16) / 32));
+                    if (cell != null) map.isExit = map.westExit.getCell((int) (player.x / 32), (int) ((player.y + 16) / 32)).getTile().getProperties().containsKey("west");
+                    if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && map.isExit && map.west) {
+                        roomY--;
+                        map = new mapClass(game.level, roomX, roomY, game);
+                        //set new exit and entrance coordinates
+                        float[] entranceCoordinates = new float[2];
+                        entranceCoordinates = map.calculateEntranceCoordinates("east");
+                        player.x = entranceCoordinates[0];
+                        player.y = entranceCoordinates[1];
+                    }
+                    if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && !map.isBlocked) {
+                        player.move("left");
+                        player.currentAnim = player.animLeft;
+                        player.currentDir = "left";
+                    }
+                    map.isExit = false;
+                }
+                if (Gdx.input.isKeyPressed(Input.Keys.D)) {
+                    keyPressedTime += Gdx.graphics.getDeltaTime();
+                    map.isBlocked = map.mapLayer.getCell((int) ((player.x + 32) / 32 + 1), (int) ((player.y + 16) / 32)).getTile().getProperties().containsKey("blocked");
+                    cell = map.eastExit.getCell((int) ((player.x + 32) / 32 + 1), (int) ((player.y + 16) / 32));
+                    if (cell != null) map.isExit = map.eastExit.getCell((int) ((player.x + 32) / 32 + 1), (int) ((player.y + 16) / 32)).getTile().getProperties().containsKey("east");
+                    if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && map.isExit && map.east) {
+                        roomY++;
+                        map = new mapClass(game.level, roomX, roomY, game);                       //set new exit and entrance coordinates
+                        float[] entranceCoordinates = new float[2];
+                        entranceCoordinates = map.calculateEntranceCoordinates("west");
+                        player.x = entranceCoordinates[0];
+                        player.y = entranceCoordinates[1];
+                    }
+                    if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && !map.isBlocked) {
+                        player.move("right");
+                        player.currentAnim = player.animRight;
+                        player.currentDir = "right";
+                    }
+                    map.isExit = false;
+                }
+                if (Gdx.input.isKeyPressed(Input.Keys.W)) {
+                    keyPressedTime += Gdx.graphics.getDeltaTime();
+                    map.isBlocked = map.mapLayer.getCell((int) ((player.x + 16) / 32), (int) ((player.y + 16) / 32 + 1)).getTile().getProperties().containsKey("blocked");
+                    cell = map.northExit.getCell((int) ((player.x + 16) / 32), (int) ((player.y + 16) / 32 + 1));
+                    if (cell != null) map.isExit = map.northExit.getCell((int) ((player.x + 16) / 32), (int) ((player.y + 16) / 32 + 1)).getTile().getProperties().containsKey("north");
+                    if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && map.isExit && map.north) {
+                        roomX--;
+                        map = new mapClass(game.level, roomX, roomY, game);                       //set new exit and entrance coordinates
+                        float[] entranceCoordinates = new float[2];
+                        entranceCoordinates = map.calculateEntranceCoordinates("south");
+                        player.x = entranceCoordinates[0];
+                        player.y = entranceCoordinates[1];
+                    }
+                    if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && !map.isBlocked) {
+                        player.move("up");
+                        player.currentAnim = player.animFront;
+                    }
+                    map.isExit = false;
+                }
+                if (Gdx.input.isKeyPressed(Input.Keys.S)) {
+                    keyPressedTime += Gdx.graphics.getDeltaTime();
+                    map.isBlocked = map.mapLayer.getCell((int) ((player.x + 16) / 32), (int) (player.y / 32) - 1).getTile().getProperties().containsKey("blocked");
+                    cell = map.southExit.getCell((int) ((player.x + 16) / 32), (int) (player.y / 32) - 1);
+                    if (cell != null) map.isExit = map.southExit.getCell((int) ((player.x + 16) / 32), (int) (player.y / 32) - 1).getTile().getProperties().containsKey("south");
+                    if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && map.isExit && map.south) {
+                        roomX++;
+                        map = new mapClass(game.level, roomX, roomY, game);                       //set new exit and entrance coordinates
+                        float[] entranceCoordinates = new float[2];
+                        entranceCoordinates = map.calculateEntranceCoordinates("north");
+                        player.x = entranceCoordinates[0];
+                        player.y = entranceCoordinates[1];
+                    }
+                    if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && !map.isBlocked) {
+                        player.move("down");
+                        player.currentAnim = player.animBack;
+                    }
+                    map.isExit = false;
+                }
+                if (!(Gdx.input.isKeyPressed(Input.Keys.W)) && !(Gdx.input.isKeyPressed(Input.Keys.A)) && !(Gdx.input.isKeyPressed(Input.Keys.S)) && !(Gdx.input.isKeyPressed(Input.Keys.D))) {
+                    keyPressedTime = 0f;
+                    if (player.currentDir == "left") player.currentAnim = player.animIdleLeft;
+                    else player.currentAnim = player.animIdleRight;
+                }
+
+                //Use potion
+                if(Gdx.input.isKeyJustPressed(Input.Keys.Q)) {
+                    player.removePotion();
+                }
+
+                //Pause game
+                if(Gdx.input.isKeyJustPressed(Input.Keys.P)) {
                     game.state = gameState.PAUSED;
-               }
-                
-               break;
-       }
+                }
+
+                break;
+        }
 
     }
 
