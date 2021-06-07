@@ -29,13 +29,13 @@ public class WhiskeredAway extends Game {
     Music currentMusic;
     Sound selectSoundEffect;
     levelClass level;
-    Player player;
-
+    int counter;
 
     public void create() {
         font = new BitmapFont();
         batch = new SpriteBatch();
         state = gameState.RUNNING;
+        this.counter = 0;
 
         setCurrentMusic("Audio/main-theme.ogg");
         selectSoundEffect = Gdx.audio.newSound((Gdx.files.internal("Audio/select_two.mp3")));

@@ -1,5 +1,6 @@
 package com.riteh.whisk;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
@@ -165,8 +166,14 @@ public class FirstScreen implements Screen {
                 for(Item currentItem : map.items) {
                     if(player.creatureRectangle.contains(currentItem.itemRectangle) && !currentItem.isPickedUp()) {
                         if (currentItem.getName().equals("Portal")) {
-                            game.level = new levelClass();
-                            game.setScreen(new FirstScreen(game));
+                            if (game.counter == 10) {
+                                game.counter = 0;
+                                game.setScreen(new GameCompleted(game));
+                            } else {
+                                game.counter++;
+                                game.level = new levelClass();
+                                game.setScreen(new FirstScreen(game));
+                            }
                         }
                         currentItem.setPickedUp(true);
                         //add potion to player's inventory
@@ -198,6 +205,7 @@ public class FirstScreen implements Screen {
                         player.currentDir = "left";
                         for(Enemy currentEnemy : map.enemies) {
                             currentEnemy.attack(player);
+                            if (player.isDead) game.setScreen(new GameOver(game));
                         }
                     }
                     map.isExit = false;
@@ -221,6 +229,7 @@ public class FirstScreen implements Screen {
                         player.currentDir = "right";
                         for(Enemy currentEnemy : map.enemies) {
                             currentEnemy.attack(player);
+                            if (player.isDead) game.setScreen(new GameOver(game));
                         }
                     }
                     map.isExit = false;
@@ -239,6 +248,7 @@ public class FirstScreen implements Screen {
                         player.creatureRectangle.y = entranceCoordinates[1];
                         for(Enemy currentEnemy : map.enemies) {
                             currentEnemy.attack(player);
+                            if (player.isDead) game.setScreen(new GameOver(game));
                         }
                     }
                     if (MathUtils.isZero(keyPressedTime % keyDelta, 0.025f) && !map.isBlocked) {
@@ -265,6 +275,7 @@ public class FirstScreen implements Screen {
                         player.currentAnim = player.animFront;
                         for(Enemy currentEnemy : map.enemies) {
                             currentEnemy.attack(player);
+                            if (player.isDead) game.setScreen(new GameOver(game));
                         }
                     }
                     map.isExit = false;
@@ -287,6 +298,11 @@ public class FirstScreen implements Screen {
 
                 if(Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
                     player.attack(map.enemies);
+                    for (Enemy enemy : map.enemies) {
+                        if (enemy.isDead) {
+                            enemy.creatureRectangle.x = 1500;
+                        }
+                    }
                 }
 
                 break;

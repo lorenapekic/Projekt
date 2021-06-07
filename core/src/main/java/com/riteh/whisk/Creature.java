@@ -12,6 +12,7 @@ public class Creature{
     String currentDir;
     int healthPoints;
     Rectangle creatureRectangle;
+    boolean isDead;
 
     Animation<TextureRegion> currentAnim, animLeft, animRight, animFront, animBack, animIdleLeft, animIdleRight, attackFront, attackBack, attackLeft, attackRight;
 
@@ -45,6 +46,7 @@ public class Creature{
         this.creatureRectangle.width = size;
         this.creatureRectangle.height = size;
         this.healthPoints = healthPoints;
+        this.isDead = false;
 
         this.animLeft = GifDecoder.loadGIFAnimation(Animation.PlayMode.LOOP, Gdx.files.internal(animLeft).read());
         this.animRight = GifDecoder.loadGIFAnimation(Animation.PlayMode.LOOP, Gdx.files.internal(animRight).read());
@@ -80,7 +82,7 @@ public class Creature{
                 this.healthPoints -= 10;
             }
             if(this.healthPoints <= 0) {
-                //die
+                this.isDead = true;
             }
         }
     }

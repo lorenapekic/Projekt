@@ -16,7 +16,7 @@ public class Enemy extends Creature {
 
     public void dropCoin() {
         if(this.healthPoints == 0) {
-            //nešto
+
         }
     }
 
