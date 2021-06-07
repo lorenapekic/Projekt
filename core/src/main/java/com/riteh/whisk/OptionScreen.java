@@ -87,6 +87,10 @@ public class OptionScreen implements Screen {
         pauseLabel.setFontScale(1.8f);
         Label pauseControlLabel = new Label("P", skin, "white");
         pauseControlLabel.setFontScale(1.8f);
+        Label attackLabel = new Label("Attack: ", skin,  "white");
+        attackLabel.setFontScale(1.8f);
+        Label attackControlLabel = new Label("Space", skin, "white");
+        attackControlLabel.setFontScale(1.8f);
 
         Table settingsTable = new Table();
         settingsTable.setFillParent(true);
@@ -107,6 +111,9 @@ public class OptionScreen implements Screen {
         settingsTable.row();
         settingsTable.add(pauseLabel).padRight(30);
         settingsTable.add(pauseControlLabel);
+        settingsTable.row();
+        settingsTable.add(attackLabel).padRight(30);
+        settingsTable.add(attackControlLabel);
         settingsTable.row();
         settingsTable.add(volumeLabel).padRight(30);
         settingsTable.add(volumeSlider).width(200);

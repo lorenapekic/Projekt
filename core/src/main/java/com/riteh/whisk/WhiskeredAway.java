@@ -12,6 +12,8 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 
+import squidpony.squidai.DijkstraMap;
+
 //for keeping track of game state
 enum gameState {
     PAUSED,
@@ -27,6 +29,7 @@ public class WhiskeredAway extends Game {
     Music currentMusic;
     Sound selectSoundEffect;
     levelClass level;
+
 
     public void create() {
         font = new BitmapFont();

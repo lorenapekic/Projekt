@@ -11,7 +11,9 @@ import com.badlogic.gdx.utils.Array;
 import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class mapClass {
+import squidpony.squidai.DijkstraMap;
+
+public class mapClass extends DijkstraMap {
     final WhiskeredAway game;
     String name; //filepath to map
     TiledMap currentLevel;
@@ -25,6 +27,7 @@ public class mapClass {
     boolean isExit;
     boolean north, east, south, west;
     Array<Item> items;
+    Array<Enemy> enemies;
     int x, y;
     int visible[];
 
@@ -55,6 +58,7 @@ public class mapClass {
         this.renderer = new OrthogonalTiledMapRenderer(currentLevel, 2f);
 
         this.items = new Array<Item>();
+        this.enemies = new Array<Enemy>();
         if (!this.name.equals("Maps/levelS.tmx")) spawnItems();
     }
 
@@ -79,6 +83,7 @@ public class mapClass {
         ThreadLocalRandom random = ThreadLocalRandom.current();
         int chance;
         int currentItem = 0;
+        int currentEnemy = 0;
 
         if (this.name.equals("Maps/levelE.tmx")) {
             for (MapObject object : this.currentLevel.getLayers().get("objects").getObjects()) {
@@ -99,18 +104,23 @@ public class mapClass {
                 if (object instanceof RectangleMapObject) {
                     RectangleMapObject rect = ((RectangleMapObject) object);
                     if (object.getProperties().containsKey("spawn")) {
-                        Item new_item;
+                        Item new_item = null;
+                        Enemy new_enemy;
                         chance = random.nextInt(1, 100);
                         if (chance < 70) {
-                            new_item = new Item("Small health potion", "Restores 50 health", 50, "Items/catFood.gif");
+                            //put enemy spawn here
+                            new_enemy = new Enemy(rect.getRectangle().x*2, rect.getRectangle().y*2, 64, 50, "Birb", "Enemies/blueBird_walkLeft.gif", "Enemies/blueBird_walkRight.gif", "Enemies/blueBird_walkFront.gif", "Enemies/blueBird_walkBehind.gif",
+                                    "Enemies/blueBird_attackFront.gif", "Enemies/blueBird_attackBehind.gif", "Enemies/blueBird_attackLeft.gif", "Enemies/blueBird_attackRight.gif");
+                            enemies.add(new_enemy);
+                            currentEnemy++;
                         } else {
-                            new_item = new Item("Coin", "Increases score", 50, "Items/coin.gif");
-                        }
+                            new_item = new Item("Small health potion", "Restores 50 health", 50, "Items/catFood.gif");
+                            items.add(new_item);
+                            items.get(currentItem).itemRectangle.x = rect.getRectangle().x*2+12;
+                            items.get(currentItem).itemRectangle.y = rect.getRectangle().y*2+3;
+                            currentItem++;
 
-                        items.add(new_item);
-                        items.get(currentItem).itemRectangle.x = rect.getRectangle().x*2+12;
-                        items.get(currentItem).itemRectangle.y = rect.getRectangle().y*2+3;
-                        currentItem++;
+                        }
                     }
                 }
             }
