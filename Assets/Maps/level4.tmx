@@ -122,6 +122,9 @@
    <point/>
   </object>
   <object id="5" x="249.75" y="143">
+   <properties>
+    <property name="spawn" value=""/>
+   </properties>
    <point/>
   </object>
   <object id="6" x="121.5" y="111">

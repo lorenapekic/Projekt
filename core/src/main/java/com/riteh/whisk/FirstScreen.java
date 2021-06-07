@@ -60,7 +60,10 @@ public class FirstScreen implements Screen {
         exit.x = exitCoordinates[0];
         exit.y = exitCoordinates[1];*/
 
-        player = new Player(entranceCoordinates[0], entranceCoordinates[1], 64, 100, 0, 0);
+        //player = new Player(/*entranceCoordinates[0], entranceCoordinates[1],*/ 64, 100, 0, 0);
+        player = game.player;
+        player.x = entranceCoordinates[0];
+        player.y = entranceCoordinates[1];
 
         player.animLeft = GifDecoder.loadGIFAnimation(Animation.PlayMode.LOOP, Gdx.files.internal("Cat/Cat_walkLeft.gif").read());
         player.animRight = GifDecoder.loadGIFAnimation(Animation.PlayMode.LOOP, Gdx.files.internal("Cat/Cat_walkRight.gif").read());

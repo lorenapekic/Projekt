@@ -4,8 +4,8 @@ public class Player extends Creature {
     public int potionCount = 0;
     public int goldCount = 0;
 
-    public Player(float x, float y, int size, int healthPoints, int potionCount, int goldCount) {
-        super(x, y, size, healthPoints);
+    public Player(/*float x, float y,*/ int size, int healthPoints, int potionCount, int goldCount) {
+        super(/*x, y,*/size, healthPoints);
         this.potionCount = potionCount;
         this.goldCount = goldCount;
     }

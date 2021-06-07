@@ -10,9 +10,9 @@ public class Creature extends Rectangle {
 
     Animation<TextureRegion> currentAnim, animLeft, animRight, animFront, animBack, animIdleLeft, animIdleRight;
 
-    public Creature (float x, float y, int size, int healthPoints) {
-        this.x = x;
-        this.y = y;
+    public Creature (/*float x, float y,*/ int size, int healthPoints) {
+        //this.x = x;
+        //this.y = y;
         this.width = size;
         this.height = size;
         this.healthPoints = healthPoints;
