@@ -15,6 +15,7 @@ public class Creature{
 
     Animation<TextureRegion> currentAnim, animLeft, animRight, animFront, animBack, animIdleLeft, animIdleRight, attackFront, attackBack, attackLeft, attackRight;
 
+
     public Creature (float x, float y, int size, int healthPoints, String animLeft, String animRight, String animFront, String animBack,
                      String animIdleLeft, String animIdleRight, String attackFront, String attackBack, String attackLeft, String attackRight) {
         this.creatureRectangle = new Rectangle();
@@ -22,6 +23,7 @@ public class Creature{
         this.creatureRectangle.y = y;
         this.creatureRectangle.width = size;
         this.creatureRectangle.height = size;
+
         this.healthPoints = healthPoints;
 
         this.animLeft = GifDecoder.loadGIFAnimation(Animation.PlayMode.LOOP, Gdx.files.internal(animLeft).read());

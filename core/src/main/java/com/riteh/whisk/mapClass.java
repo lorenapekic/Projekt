@@ -91,10 +91,10 @@ public class mapClass extends DijkstraMap {
                     RectangleMapObject rect = ((RectangleMapObject) object);
                     if (object.getProperties().containsKey("spawn")) {
                         Item new_item;
-                        new_item = new Item("Portal", "Takes you to the next level", 0, "Items/portal.jpg");
+                        new_item = new Item("Portal", "Takes you to the next level", 0, "Items/portal.gif");
                         items.add(new_item);
-                        items.get(currentItem).itemRectangle.x = rect.getRectangle().x*2+10;
-                        items.get(currentItem).itemRectangle.y = rect.getRectangle().y*2;
+                        items.get(currentItem).itemRectangle.x = rect.getRectangle().x*2+12;
+                        items.get(currentItem).itemRectangle.y = rect.getRectangle().y*2+5;
                         currentItem++;
                     }
                 }
@@ -120,7 +120,9 @@ public class mapClass extends DijkstraMap {
                             items.get(currentItem).itemRectangle.y = rect.getRectangle().y*2+3;
                             currentItem++;
 
+
                         }
+
                     }
                 }
             }

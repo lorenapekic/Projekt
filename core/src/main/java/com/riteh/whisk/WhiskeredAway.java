@@ -29,6 +29,7 @@ public class WhiskeredAway extends Game {
     Music currentMusic;
     Sound selectSoundEffect;
     levelClass level;
+    Player player;
 
 
     public void create() {

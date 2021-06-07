@@ -8,8 +8,10 @@ public class Player extends Creature {
     public int potionCount = 0;
     public int goldCount = 0;
 
+
     public Player(float x, float y, int size, int healthPoints, int potionCount, int goldCount, String animLeft, String animRight, String animFront, String animBack, String animIdleLeft, String animIdleRight, String attackFront, String attackBack, String attackLeft, String attackRight) {
         super(x, y, size, healthPoints, animLeft, animRight, animFront, animBack, animIdleLeft, animIdleRight, attackFront, attackBack, attackLeft, attackRight);
+
         this.potionCount = potionCount;
         this.goldCount = goldCount;
 
@@ -34,7 +36,7 @@ public class Player extends Creature {
         if(potionCount != 0){
             potionCount--;
             if(this.healthPoints > 50 && this.healthPoints < 100) {
-                this.healthPoints = 50;
+                this.healthPoints = 100;
             } else {
                 this.healthPoints += 50;
             }
