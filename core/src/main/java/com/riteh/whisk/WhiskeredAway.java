@@ -37,18 +37,38 @@ public class WhiskeredAway extends Game {
         state = gameState.RUNNING;
         this.counter = 0;
 
-        setCurrentMusic("Audio/main-theme.ogg");
+        //setCurrentMusic("Audio/main-theme.ogg");
         selectSoundEffect = Gdx.audio.newSound((Gdx.files.internal("Audio/select_two.mp3")));
 
         this.setScreen(new MainMenuScreen(this));
     }
 
     public void setCurrentMusic(String newMusicPath) {
-        if(this.currentMusic != null) {
+        if (this.currentMusic != null) this.currentMusic.stop();
+
+        this.currentMusic = Gdx.audio.newMusic(Gdx.files.internal(newMusicPath));
+        this.currentMusic.setLooping(true);
+        this.currentMusic.setVolume(this.musicVolume);
+        this.currentMusic.play();
+    }
+
+    public void setCurrentMusicMainMenu(String newMusicPath) {
+        if(this.currentMusic == null || !(this.currentMusic.isLooping())) {
+            if(this.currentMusic != null) this.currentMusic.stop();
+
+            this.currentMusic = Gdx.audio.newMusic(Gdx.files.internal(newMusicPath));
+            this.currentMusic.setLooping(true);
+            this.currentMusic.setVolume(this.musicVolume);
+            this.currentMusic.play();
+        }
+    }
+
+    public void setCurrentMusicNoLoop(String newMusicPath) {
+        if (this.currentMusic != null) {
             this.currentMusic.stop();
         }
         this.currentMusic = Gdx.audio.newMusic(Gdx.files.internal(newMusicPath));
-        this.currentMusic.setLooping(true);
+        this.currentMusic.setLooping(false);
         this.currentMusic.setVolume(this.musicVolume);
         this.currentMusic.play();
     }

@@ -27,6 +27,8 @@ public class GameOver implements Screen {
     public GameOver(final WhiskeredAway game) {
         this.game = game;
 
+        game.setCurrentMusicNoLoop("Audio/gameover.ogg");
+
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 800, 480);
         volumeSlider = new Slider(0.0f, 1.0f, 0.1f,false, skin);

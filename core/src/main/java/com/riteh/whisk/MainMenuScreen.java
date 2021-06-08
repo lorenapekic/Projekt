@@ -36,6 +36,7 @@ public class MainMenuScreen implements Screen {
 
     public MainMenuScreen(final WhiskeredAway game) {
         this.game = game;
+        game.setCurrentMusicMainMenu("Audio/main-theme.ogg");
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 800, 480);
 
