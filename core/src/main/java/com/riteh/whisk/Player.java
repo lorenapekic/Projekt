@@ -35,7 +35,7 @@ public class Player extends Creature {
     public void removePotion(){
         if(potionCount != 0){
             potionCount--;
-            if(this.healthPoints > 50 && this.healthPoints < 100) {
+            if(this.healthPoints > 50) {
                 this.healthPoints = 100;
             } else {
                 this.healthPoints += 50;
